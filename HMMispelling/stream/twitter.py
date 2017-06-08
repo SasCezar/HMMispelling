@@ -50,7 +50,7 @@ class TwitterStreamListener(tweepy.StreamListener):
 
         if self._dump_ is not None:
             logging.info(tweet)
-            self._dump_.write(tweet)
+            self._dump_.write(tweet + os.linesep)
 
         for subscriber in self._subscribers_:
             subscriber(status)
