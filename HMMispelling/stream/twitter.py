@@ -1,9 +1,10 @@
+import os
+
 import tweepy
 import logging
 
 
 class TwitterService(object):
-
     def __init__(self, consumer_key, consumer_secret, access_key, access_secret):
         self._consumer_key_ = consumer_key
         self._consumer_secret_ = consumer_secret
@@ -27,22 +28,32 @@ class TwitterService(object):
 
 
 class TwitterStreamListener(tweepy.StreamListener):
-    def __init__(self):
+    def __init__(self, dump=None, subscribers=None):
         super().__init__()
-        self._subscribers_ = []
+        if subscribers is None:
+            subscribers = []
+        self._dump_ = dump
+        self._subscribers_ = subscribers
 
     @property
     def subscribers(self):
-        return self._subscribers_
+        return self.subscribers
 
     @subscribers.setter
     def subscribers(self, value):
-        self._subscribers_ = value
+        self.subscribers = value
 
     def on_status(self, status):
-        logging.info(status.text)
-        for sub in self.subscribers:
-            sub(status)
+        tweet = status.text.replace("\r", " ").replace("\n", " ").strip()
+        if not tweet:
+            return
+
+        if self._dump_ is not None:
+            logging.info(tweet)
+            self._dump_.write(tweet + os.linesep)
+
+        for subscriber in self._subscribers_:
+            subscriber(status)
 
     def on_error(self, status_code):
         logging.debug(status_code)
@@ -50,27 +61,6 @@ class TwitterStreamListener(tweepy.StreamListener):
 
     def on_disconnect(self, notice):
         logging.debug(notice)
+        self._dump_.close() if self._dump_ is not None else None
         pass
 
-def test():
-    consumer_key = "AHB6bSwBcXsnLzFMh4wDbne27"
-    consumer_secret = "YCYo9Jv9d3QSbvIZDKYyw1rFccDVLbyjJl7PCZW1ipe304Evlw"
-    access_token = "3531429916-GJBeBqGlMSREIpOhPuH2LZzavgzkVKVP2NiWLGD"
-    access_secret = "SlmBNSy1dHcdUw0sthd4oxjpNGLmEtBqnb8Ac48UwszWC"
-
-    twitter_connection = TwitterService(consumer_key=consumer_key, consumer_secret=consumer_secret,
-                                        access_key=access_token, access_secret=access_secret)
-    twitter_connection.connect()
-
-    api = twitter_connection.api
-
-    stream_listener = TwitterStreamListener()
-
-    stream = tweepy.Stream(auth=api.auth, listener=stream_listener)
-
-    stream.filter(track=["apple"], languages=["en"], async=True)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-    test()

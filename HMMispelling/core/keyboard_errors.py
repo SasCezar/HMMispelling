@@ -116,6 +116,10 @@ class KeyBoardErrorModel(metaclass=ABCMeta):
         self.layout = layout
 
     def evaluate_error(self):
+        """
+        Creates the distribution of error for each key based on its neighbors
+        :return: A dictionary of letters containing a list of tuples (letter, probability)
+        """
         distributions = {}
         for key in self.layout:
             key_neighbors = self.layout[key]
@@ -124,11 +128,21 @@ class KeyBoardErrorModel(metaclass=ABCMeta):
         return distributions
 
     def _distribution_(self, neighbors):
+        """
+        Implements the model specific logic of error distribution
+        :param neighbors:
+        :return:
+        """
         pass
 
 
 class KeyboardUniformError(KeyBoardErrorModel):
     def _distribution_(self, neighbors):
+        """
+        Implements the the uniform error distribution
+        :param neighbors:
+        :return:
+        """
         size = len(neighbors)
         elements = sum(key is not None for keys in neighbors for key in keys)
         probability = 1 / elements
@@ -149,6 +163,11 @@ class KeyboardPseudoUniformError(KeyBoardErrorModel):
         self.key_prob = key_prob
 
     def _distribution_(self, neighbors):
+        """
+        Implements the uniform distribution, but the probability the wanted key has a prior probability
+        :param neighbors:
+        :return:
+        """
         size = len(neighbors)
         elements = sum(key is not None for keys in neighbors for key in keys)
         probability = self.pseudo_uniform(size, elements)
@@ -179,6 +198,11 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
         self.variance = variance
 
     def _distribution_(self, neighbors):
+        """
+        Implements the gaussian model error
+        :param neighbors:
+        :return:
+        """
         size = len(neighbors)
 
         result = []
@@ -188,7 +212,9 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
                 if neighbors[i][j] is not None:
                     result += [(neighbors[i][j], probability[i][j])]
 
-        return result
+        total = sum(x for xs in result for x in xs)
+        normalized_result = [[x/total for x in xs] for xs in result]
+        return normalized_result
 
     def _single_dist_(self, x):
         result = (1 / (math.sqrt(2 * math.pi * self.variance))) * (
