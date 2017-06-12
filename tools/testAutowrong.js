@@ -2,7 +2,8 @@
 const autowrong = require('autowrong');
 const options = {adjacent: 0.05, double: 0.00, order: 0.00}
 var fs = require("fs");
-var text = fs.readFileSync("./myText.txt").toString('utf-8');
+//var text = fs.readFileSync("../dataset/trump_tweets.txt").toString('utf-8');
+var text = fs.readFileSync("../dataset/apple_tweets.txt").toString('utf-8');
 var textByLine = text.split("\r\n");
 console.log(textByLine)
 var maxIndex = textByLine.length
@@ -11,5 +12,6 @@ for(i = 0; i < maxIndex; i++){
 	var perturb = textByLine[i].split("\t")
 	console.log(perturb[0])
 	console.log(perturb[1])
-	fs.appendFileSync("./myTextWrite.txt", perturb[0] + "\t" + autowrong(perturb[1], options) + "\r\n") 
+	//fs.appendFileSync("../dataset/trump_tweets_autowrong.txt", perturb[0] + "\t" + autowrong(perturb[1], options) + "\r\n")
+	fs.appendFileSync("../dataset/apple_tweets_autowrong.txt", perturb[0] + "\t" + autowrong(perturb[1], options) + "\r\n")
 }
