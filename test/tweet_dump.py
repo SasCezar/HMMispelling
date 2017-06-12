@@ -27,6 +27,6 @@ def tweet2text(out_path, keyword):
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-    keyword = "brexit"
+    keyword = "trump"
     out = "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\" + keyword + "_tweets.txt"
     tweet2text(out, keyword=keyword)

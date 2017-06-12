@@ -45,12 +45,13 @@ class TwitterStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
         tweet = status.text.replace("\r", " ").replace("\n", " ").strip()
+        tweet_id = str(status.id)
         if not tweet:
             return
 
         if self._dump_ is not None:
             logging.info(tweet)
-            self._dump_.write(tweet + os.linesep)
+            self._dump_.write(tweet_id + "\t" + tweet + os.linesep)
 
         for subscriber in self._subscribers_:
             subscriber(status)
@@ -63,4 +64,3 @@ class TwitterStreamListener(tweepy.StreamListener):
         logging.debug(notice)
         self._dump_.close() if self._dump_ is not None else None
         pass
-
