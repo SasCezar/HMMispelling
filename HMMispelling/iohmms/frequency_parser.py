@@ -27,27 +27,27 @@ def load_probabilities(file):
 def normalize_distribution(matrix):
     r = matrix.shape[0]
     c = matrix.size
-    matrix_norm = np.matrix([])
+    result = np.matrix([])
 
-    if r == 1:
+    if r == 1: # Case First letter frequency
         for i in np.nditer(matrix):
-            el = i / 100  # Apply the function
-            matrix_norm = np.hstack((matrix_norm, [[el]]))  # Append the new element
-    else:
+            element = i / 100  # Apply the function
+            result = np.hstack((result, [[element]]))  # Append the new element
+    else: # Other cases, nxn frequency matrix
         for i in np.nditer(matrix):
             if i == 0:
-                el = 0  # To avoid e^0 = 1 the element should not be transformed
+                element = 0  # To avoid e^0 = 1 the frequency equal to 0 should not be transformed
             else:
-                el = round(mh.exp(i), 0)  # Apply the function if the element in matrix is not 0
-            matrix_norm = np.hstack((matrix_norm, [[el]]))  # Append the new element
+                element = round(mh.exp(i), 0)  # Apply the function if the element in matrix is not 0
+            result = np.hstack((result, [[element]]))  # Append the new element
 
         slice = int(c / r)
-        matrix_norm = matrix_norm.reshape(1, r, slice)
+        result = result.reshape(1, r, slice) # reshape frequencies in original shape
 
-        matrix_norm = np.apply_along_axis(normalize, 1, matrix_norm)
+        result = np.apply_along_axis(normalize, 1, result) # Set frequencies in 0:1 interval
         # matrix_norm = matrix_norm.round(3)
 
-    return matrix_norm
+    return result
 
 
 def normalize(v):
