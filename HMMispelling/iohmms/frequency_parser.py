@@ -10,7 +10,7 @@ def load_probabilities(file):
     with open(file, 'r', encoding="utf8") as csv_file:
 
         reader = csv.reader(csv_file)
-        next(reader)  # Skip of header row
+        header = next(reader)[1:]  # Skip of header row
 
         for row in reader:
             row_values = row[1:]  # Remove first column
@@ -21,7 +21,7 @@ def load_probabilities(file):
         if probability[0, :].sum != 1:
             probability = normalize_distribution(probability)
 
-    return probability
+    return header, probability
 
 
 def normalize_distribution(matrix):

@@ -212,8 +212,8 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
                 if neighbors[i][j] is not None:
                     result += [(neighbors[i][j], probability[i][j])]
 
-        total = sum(x for xs in result for x in xs)
-        normalized_result = [[x/total for x in xs] for xs in result]
+        total = sum(prob for neighbor, prob in result)
+        normalized_result = [(neighbor, prob/total) for neighbor, prob in result]
         return normalized_result
 
     def _single_dist_(self, x):
