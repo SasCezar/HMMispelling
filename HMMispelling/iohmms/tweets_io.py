@@ -8,7 +8,7 @@ def clean_tweets(in_file, out_file=None):
     dict_tweets = load_tweets(in_file)
     if not out_file:
         base_path = path.dirname(in_file)
-        file_name, extension = path.splitext(path.dirname(in_file))
+        file_name, extension = path.splitext(path.basename(in_file))
 
         out_file = path.join(base_path, file_name + "_cleaned" + extension)
 
@@ -40,13 +40,18 @@ mentions_re = re.compile(r'@[^\s]*')
 url_re = re.compile(r'htt[^\s]*')
 symbols_re = re.compile(r'[^A-Za-z ]')
 rt_re = re.compile(r'RT ')
-
+space_re = re.compile(r'\s+')
 
 def clean(tweet):
-    tweet = mentions_re.sub('', tweet)  # Mentions
-    tweet = url_re.sub('', tweet)  # URLs
-    tweet = symbols_re.sub('', tweet)  # Symbols
-    tweet = rt_re.sub('', tweet)  # RT
+    tweet = mentions_re.sub(' ', tweet)  # Mentions
+    tweet = url_re.sub(' ', tweet)  # URLs
+    tweet = symbols_re.sub(' ', tweet)  # Symbols
+    tweet = rt_re.sub(' ', tweet)  # RT
+    tweet = space_re.sub(' ', tweet)
     tweet = tweet.strip()  # spaces at head or tail
 
     return tweet
+
+
+clean_tweets('C:/Users/kivid/Dropbox/Universita/Corsi Magistrale/Modelli probabilistici per le decisioni/Progetto'
+             ' Mispelling/HMMispelling/dataset/trump_tweets.txt')
