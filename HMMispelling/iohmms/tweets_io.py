@@ -5,7 +5,7 @@ import os.path as path
 
 
 def clean_tweets(in_file, out_file=None):
-    dict_tweets = load_tweets(in_file)
+    dict_tweets = load_tweets(in_file, True)
     if not out_file:
         base_path = path.dirname(in_file)
         file_name, extension = path.splitext(path.basename(in_file))
@@ -15,14 +15,14 @@ def clean_tweets(in_file, out_file=None):
     write_tweets(out_file, dict_tweets)
 
 
-def load_tweets(file):
+def load_tweets(file, not_cleaned=False):
     dict_tweets = {}
 
     with open(file, 'rt', encoding="utf8") as csv_file:
         reader = csv.reader(csv_file, delimiter='\t')
 
         for tweet_id, tweet in reader:
-            tweet_clean = clean(tweet)
+            tweet_clean = clean(tweet) if not_cleaned else tweet
             if tweet_clean:
                 dict_tweets[tweet_id] = tweet_clean
 
@@ -42,6 +42,7 @@ symbols_re = re.compile(r'[^A-Za-z ]')
 rt_re = re.compile(r'RT ')
 space_re = re.compile(r'\s+')
 
+
 def clean(tweet):
     tweet = mentions_re.sub(' ', tweet)  # Mentions
     tweet = url_re.sub(' ', tweet)  # URLs
@@ -51,7 +52,3 @@ def clean(tweet):
     tweet = tweet.strip()  # spaces at head or tail
 
     return tweet
-
-
-clean_tweets('C:/Users/kivid/Dropbox/Universita/Corsi Magistrale/Modelli probabilistici per le decisioni/Progetto'
-             ' Mispelling/HMMispelling/dataset/trump_tweets.txt')
