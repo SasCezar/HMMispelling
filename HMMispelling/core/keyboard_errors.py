@@ -2,6 +2,7 @@ from abc import ABCMeta
 
 import math
 import numpy as np
+import sys
 
 simple_qwerty = {
     'A': [[None, 'Q', 'W'],
@@ -60,7 +61,7 @@ simple_qwerty = {
           ['B', 'N', 'M'],
           [None, None, None]
           ],
-    '0': [[None, None, None],
+    'O': [[None, None, None],
           ['I', 'O', 'P'],
           ['K', 'L', None]
           ],
@@ -182,7 +183,7 @@ class KeyboardPseudoUniformError(KeyBoardErrorModel):
         return result
 
     def pseudo_uniform(self, size, elements):
-        result = [[(1-self.key_prob)/(elements-1)] * size for _ in range(0, size)]
+        result = [[(1 - self.key_prob) / (elements - 1)] * size for _ in range(0, size)]
 
         half_size = int(math.floor(size // 2))
 
@@ -213,7 +214,7 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
                     result += [(neighbors[i][j], probability[i][j])]
 
         total = sum(prob for neighbor, prob in result)
-        normalized_result = [(neighbor, prob/total) for neighbor, prob in result]
+        normalized_result = [(neighbor, prob / total) for neighbor, prob in result]
         return normalized_result
 
     def _single_dist_(self, x):
@@ -227,9 +228,9 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
 
         x = 0
         gaussian = [[0] * size for _ in range(0, size)]
-        for i in range(-half_size, half_size+1):
+        for i in range(-half_size, half_size + 1):
             y = 0
-            for j in range(-half_size, half_size+1):
+            for j in range(-half_size, half_size + 1):
                 x_dist = self._single_dist_(i)
                 y_dist = self._single_dist_(j)
                 gaussian[x][y] = x_dist * y_dist
@@ -239,20 +240,35 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
         return gaussian
 
 
+epsilon = sys.float_info.epsilon
+
+
 def create_emission_matrix(errors_distributions):
     size = len(errors_distributions)
-    emission_matrix = np.zeros(shape=(size, size), dtype=float)
+
+    emission_matrix = np.full((size, size), epsilon, dtype=float)
+    key_list = []
     for key in errors_distributions:
+        key_list += [key]
         for letter, probability in errors_distributions[key]:
             emission_matrix[ord(key) - 65][ord(letter) - 65] = probability
+
+    for i in range(0, size):
+        emission_matrix[i] = emission_matrix[i]/sum(emission_matrix[i])
 
     result = np.matrix(emission_matrix)
 
     return result
 
 
-error_model = KeyboardPseudoUniformError()
+error_model = KeyBoardGaussianError()
 x = error_model.evaluate_error()
+
 print(x)
+for key in x:
+    a = sum(n for _, n in x[key])
+    print("Key {} - Sum {}".format(key, a))
+
 em = create_emission_matrix(x)
-print(em)
+print(type(em))
+# print(em.sum(axis=1))
