@@ -29,11 +29,11 @@ def normalize_distribution(matrix):
     c = matrix.size
     result = np.matrix([])
 
-    if r == 1: # Case First letter frequency
+    if r == 1:  # Case First letter frequency
         for i in np.nditer(matrix):
             element = i / 100  # Apply the function
             result = np.hstack((result, [[element]]))  # Append the new element
-    else: # Other cases, nxn frequency matrix
+    else:  # Other cases, nxn frequency matrix
         for i in np.nditer(matrix):
             if i == 0:
                 element = 0  # To avoid e^0 = 1 the frequency equal to 0 should not be transformed
@@ -42,9 +42,9 @@ def normalize_distribution(matrix):
             result = np.hstack((result, [[element]]))  # Append the new element
 
         slice = int(c / r)
-        result = result.reshape(1, r, slice) # reshape frequencies in original shape
+        result = result.reshape(1, r, slice)  # reshape frequencies in original shape
 
-        result = np.apply_along_axis(normalize, 1, result) # Set frequencies in 0:1 interval
+        result = np.matrix(np.apply_along_axis(normalize, 1, result))  # Set frequencies in 0:1 interval
         # matrix_norm = matrix_norm.round(3)
 
     return result
