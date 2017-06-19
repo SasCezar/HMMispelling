@@ -108,6 +108,110 @@ simple_qwerty = {
     'Z': [[None, 'A', 'S'],
           [None, 'Z', 'X'],
           [None, None, None]
+          ],
+    'a': [[None, 'q', 'w'],
+          [None, 'a', 's'],
+          [None, None, 'z']
+          ],
+    'b': [[None, 'g', 'h'],
+          ['v', 'b', 'n'],
+          [None, None, None]
+          ],
+    'c': [[None, 'd', 'f'],
+          ['x', 'c', 'v'],
+          [None, None, None]
+          ],
+    'd': [[None, 'e', 'r'],
+          ['s', 'd', 'f'],
+          ['x', 'c', None]
+          ],
+    'e': [[None, None, None],
+          ['w', 'e', 'r'],
+          ['s', 'd', None]
+          ],
+    'f': [[None, 'r', 't'],
+          ['d', 'f', 'g'],
+          ['c', 'v', None]
+          ],
+    'g': [[None, 't', 'y'],
+          ['f', 'g', 'h'],
+          ['v', 'b', None]
+          ],
+    'h': [[None, 'y', 'u'],
+          ['g', 'h', 'j'],
+          ['b', 'n', None]
+          ],
+    'i': [[None, None, None],
+          ['u', 'i', 'o'],
+          ['j', 'k', None]
+          ],
+    'j': [[None, 'u', 'i'],
+          ['h', 'j', 'k'],
+          ['n', 'm', None]
+          ],
+    'k': [[None, 'i', 'o'],
+          ['j', 'k', 'l'],
+          ['m', None, None]
+          ],
+    'l': [[None, 'o', 'p'],
+          ['k', 'l', None],
+          [None, None, None]
+          ],
+    'm': [[None, 'j', 'k'],
+          ['n', 'm', None],
+          [None, None, None]
+          ],
+    'n': [[None, 'h', 'j'],
+          ['b', 'n', 'm'],
+          [None, None, None]
+          ],
+    'o': [[None, None, None],
+          ['i', 'o', 'p'],
+          ['k', 'l', None]
+          ],
+    'p': [[None, None, None],
+          ['o', 'p', None],
+          ['l', None, None]
+          ],
+    'q': [[None, None, None],
+          [None, 'q', 'w'],
+          [None, 'a', None]
+          ],
+    'r': [[None, None, None],
+          ['e', 'r', 't'],
+          ['d', 'f', None]
+          ],
+    's': [['q', 'w', 'e'],
+          ['a', 's', 'd'],
+          ['z', 'x', None]
+          ],
+    't': [[None, None, None],
+          ['r', 't', 'y'],
+          ['f', 'g', None]
+          ],
+    'u': [[None, None, None],
+          ['y', 'u', 'i'],
+          ['h', 'j', None]
+          ],
+    'v': [[None, 'f', 'g'],
+          ['c', 'v', 'b'],
+          [None, None, None]
+          ],
+    'w': [[None, None, None],
+          ['q', 'w', 'e'],
+          ['a', 's', None]
+          ],
+    'x': [[None, 's', 'd'],
+          ['z', 'x', 'c'],
+          [None, None, None]
+          ],
+    'y': [[None, None, None],
+          ['t', 'y', 'u'],
+          ['g', 'h', None]
+          ],
+    'z': [[None, 'a', 's'],
+          [None, 'z', 'x'],
+          [None, None, None]
           ]
 }
 
@@ -243,6 +347,15 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
 epsilon = sys.float_info.epsilon
 
 
+def map_to_zero(key):
+    key_val = ord(key)
+    if 65 <= key_val <= 90:
+        return key_val - 65
+
+    if 97 <= key_val <= 122:
+        return key_val - 97 + (65 - 90)
+
+
 def create_emission_matrix(errors_distributions):
     size = len(errors_distributions)
 
@@ -251,14 +364,19 @@ def create_emission_matrix(errors_distributions):
     for key in errors_distributions:
         key_list += [key]
         for letter, probability in errors_distributions[key]:
-            emission_matrix[ord(key) - 65][ord(letter) - 65] = probability
+            i = map_to_zero(key)
+            j = map_to_zero(letter)
+            emission_matrix[i, j] = probability
 
     for i in range(0, size):
-        emission_matrix[i] = emission_matrix[i]/sum(emission_matrix[i])
+        emission_matrix[i] = emission_matrix[i] / sum(emission_matrix[i])
 
     result = np.matrix(emission_matrix)
 
-    return result
+    observations = list(errors_distributions.keys())
+    observations.sort()
+
+    return observations, result
 
 
 error_model = KeyBoardGaussianError()
