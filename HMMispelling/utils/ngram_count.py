@@ -15,6 +15,15 @@ def is_ascii_char(char):
     return False
 
 
+non_chars_re = re.compile(r'[^a-zA-Z]')
+
+
+def clean_word(word):
+    cleaned_word = non_chars_re.sub(" ", word).strip()
+
+    return cleaned_word
+
+
 def split_text_chars(text):
     chars = list(text)
     logging.info("Num of chars {}".format(len(chars)))
@@ -33,7 +42,7 @@ def count2matrix(chars_counter):
     size = len(header)
     values = dict(zip(header, list(range(size))))
     logging.info("Values computed, length {}".format(len(values)))
-    matrix = numpy.ones(shape=(size, size))
+    matrix = numpy.ones(shape=(size, size), dtype=int)
 
     for ngram, value in chars_counter.items():
         source, dest = ngram
@@ -44,7 +53,7 @@ def count2matrix(chars_counter):
     return header, matrix
 
 
-spaces_re = re.compile(r"\s+|\r\n|\r|\n")
+spaces_re = re.compile(r"\s+|\r\n|\r|\n|\t+")
 
 
 def letters_ngams(files, out_file, n=2):
@@ -57,6 +66,7 @@ def letters_ngams(files, out_file, n=2):
             chars = split_text_chars(text)
             logging.info("Splitted chars")
             chars_ngram = ngrams(chars, n)
+            chars_ngram = [(x, y) for x, y in chars_ngram if not x == y == " "]
             logging.info("Computed n-grams")
             chars_count.update(chars_ngram)
             logging.info("Counted n-grams")
@@ -73,8 +83,9 @@ def words_ngram(files, out_file, n=2):
     for file in files:
         with open(file, "rt", encoding="utf8") as inf:
             words = " ".join(inf.readlines()).split()
+            cleaned_text = [clean_word(word) for word in words if clean_word(word)]
             logging.info("Splitted words")
-            chars_ngram = ngrams(words, n)
+            chars_ngram = ngrams(cleaned_text, n)
             logging.info("Computed n-grams")
             word_count.update(chars_ngram)
             logging.info("Counted n-grams")
@@ -92,8 +103,9 @@ if __name__ == "__main__":
              "C:\\Users\\sasce\\Downloads\\Coursera-SwiftKey\\final\\en_US\\en_US.twitter.txt",
              "C:\\Users\\sasce\\Downloads\\Coursera-SwiftKey\\final\\en_US\\en_US.blogs.txt"]
 
-    # out_file = "..\\resources\\SwiftKey_en_US_letters_frequencies.txt"
-    # letters_ngams(files, out_file, 2)
 
-    out_file = "..\\resources\\SwiftKey_en_US_words_frequencies.txt"
-    words_ngram(files, out_file, 2)
+    out_file = "..\\resources\\SwiftKey_en_US_letters_frequencies.txt"
+    letters_ngams(files, out_file, 2)
+
+    #out_file = "..\\resources\\SwiftKey_en_US_words_frequencies.txt"
+    #words_ngram(files, out_file, 2)
