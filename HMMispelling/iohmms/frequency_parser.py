@@ -1,6 +1,25 @@
 import csv
 import numpy as np
 import math as mh
+import pandas
+
+
+def normalize_matrix(matrix):
+    result = np.matrix(np.apply_along_axis(normalize_list, 1, matrix))  # Set frequencies in 0:1 interval
+    return result
+
+
+def load_dataframe(file, func=normalize_matrix):
+
+    dataframe = pandas.read_csv(file)
+    dataframe = dataframe.drop(dataframe.columns[0], 1)
+    matrix = np.matrix(dataframe.as_matrix())
+    header = dataframe.columns.values.tolist()
+
+    if func:
+        matrix = func(matrix)
+
+    return header, matrix
 
 
 def load_probabilities(file):
@@ -41,16 +60,16 @@ def normalize_distribution(matrix):
                 element = round(mh.exp(i), 0)  # Apply the function if the element in matrix is not 0
             result = np.hstack((result, [[element]]))  # Append the new element
 
-        slice = int(c / r)
-        result = result.reshape(1, r, slice)  # reshape frequencies in original shape
+        slicer = int(c / r)
+        result = result.reshape(1, r, slicer)  # reshape frequencies in original shape
 
-        result = np.matrix(np.apply_along_axis(normalize, 1, result))  # Set frequencies in 0:1 interval
+        result = np.matrix(np.apply_along_axis(normalize_list, 1, result))  # Set frequencies in 0:1 interval
         # matrix_norm = matrix_norm.round(3)
 
     return result
 
 
-def normalize(v):
+def normalize_list(v):
     norm = np.linalg.norm(v, ord=1)
     if norm == 0:
         norm = np.finfo(v.dtype).eps
