@@ -1,5 +1,6 @@
 // JavaScript source code
-const autowrong = require('autowrong');
+const autowrong = require('C:/Users/Ilaria/git/autowrong/node_modules/autowrong');
+
 const options = {adjacent: 0.05, double: 0.00, order: 0.00}
 var fs = require("fs");
 var text = fs.readFileSync("../dataset/trump_tweets.txt").toString('utf-8');
