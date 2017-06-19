@@ -55,3 +55,8 @@ def normalize(v):
     if norm == 0:
         norm = np.finfo(v.dtype).eps
     return v / norm
+
+possible_observation, start_prob = load_probabilities("C:/Users/kivid/Dropbox/Universita/Corsi Magistrale/Modelli probabilistici per le decisioni/Progetto Mispelling/HMMispelling/HMMispelling/resources/lower_first_letter_frequency.csv")
+
+print(possible_observation)
+print(start_prob)
