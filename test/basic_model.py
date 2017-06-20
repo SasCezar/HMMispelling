@@ -14,5 +14,5 @@ mispelling_modes = model.MispellingHMM(start_probability=start_prob, transition_
 
 obs1 = ('A', 'B', 'B', 'B')
 
-x = mispelling_modes.model.viterbi(observations=obs1)
+x = mispelling_modes.viterbi(obs1)
 print(x)

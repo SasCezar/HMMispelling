@@ -1,6 +1,6 @@
 import csv
 import re
-from codecs import open
+
 import os.path as path
 
 
@@ -29,7 +29,7 @@ def load_tweets(file, not_cleaned=False):
     return dict_tweets
 
 
-def write_tweets(file, tweets, ):
+def write_tweets(file, tweets):
     with open(file, "wt", encoding="utf8", newline="") as out_file:
         writer = csv.writer(out_file, delimiter="\t")
         for tweet_id in tweets:

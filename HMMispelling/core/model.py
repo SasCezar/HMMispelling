@@ -14,6 +14,10 @@ class MispellingHMM():
                                          start_prob=start_probability, trans_prob=transition_matrix,
                                          em_prob=emission_matrix)
 
-    @property
-    def model(self):
-        return self._model_
+    def viterbi(self, sequence):
+        return self._model_.viterbi(sequence)
+
+    def forward(self, sequence):
+        return self.forward(sequence)
+
+
