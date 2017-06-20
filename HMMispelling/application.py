@@ -13,19 +13,20 @@ def viterbi():
     states, transition_prob = frequency_parser.load_dataframe("./resources/SwiftKey_en_US_letters_frequencies.txt")
     start_prob = transition_prob[0]
     possible_observation, emission_prob = keyboard_errors.create_emission_matrix(keyboard_errors.
-                                                                                 KeyboardPseudoUniformError().evaluate_error())
+                                                                                 KeyBoardGaussianError().
+                                                                                 evaluate_error())
 
     print(numpy.sum(emission_prob, axis=1))
 
     mispelling_model = model.MispellingHMM(start_probability=start_prob, transition_matrix=transition_prob,
                                            hidden_states=states, observables=possible_observation,
                                            emission_matrix=emission_prob)
-    dict = tweets_io.load_tweets("../dataset/apple_tweets_autowrong.txt")
-    for key in dict:
-        words = dict[key].split()
-        for word in words:
-            word = word.upper()
-            mispelling_model.model.viterbi(list(word))
+
+    sentence = "Hellp it is md"
+    words = sentence.split()
+
+    result = mispelling_model.model.viterbi(list(sentence))
+    print("Viterbi word {}".format(result))
 
 
 viterbi()

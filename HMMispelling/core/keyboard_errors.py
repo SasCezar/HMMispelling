@@ -212,7 +212,8 @@ simple_qwerty = {
     'z': [[None, 'a', 's'],
           [None, 'z', 'x'],
           [None, None, None]
-          ]
+          ],
+    ' ': [['n', 'm', 'c', 'v', 'b', ' ', 'B', 'V', 'C', 'M', 'n']]
 }
 
 
@@ -347,25 +348,19 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
 epsilon = sys.float_info.epsilon
 
 
-def map_to_zero(key):
-    key_val = ord(key)
-    if 65 <= key_val <= 90:
-        return key_val - 65
-
-    if 97 <= key_val <= 122:
-        return key_val - 97 + (65 - 90)
-
-
 def create_emission_matrix(errors_distributions):
     size = len(errors_distributions)
 
     emission_matrix = np.full((size, size), epsilon, dtype=float)
     key_list = []
+    map_to_zero = list(zip(list(errors_distributions.keys()), range(0, size)))
+    map_to_zero = dict(map_to_zero)
+
     for key in errors_distributions:
         key_list += [key]
         for letter, probability in errors_distributions[key]:
-            i = map_to_zero(key)
-            j = map_to_zero(letter)
+            i = map_to_zero[key]
+            j = map_to_zero[letter]
             emission_matrix[i, j] = probability
 
     for i in range(0, size):
@@ -379,14 +374,15 @@ def create_emission_matrix(errors_distributions):
     return observations, result
 
 
-error_model = KeyBoardGaussianError()
-x = error_model.evaluate_error()
+if __name__ == "__main__":
+    error_model = KeyBoardGaussianError()
+    x = error_model.evaluate_error()
 
-print(x)
-for key in x:
-    a = sum(n for _, n in x[key])
-    print("Key {} - Sum {}".format(key, a))
+    print(x)
+    for key in x:
+        a = sum(n for _, n in x[key])
+        print("Key {} - Sum {}".format(key, a))
 
-em = create_emission_matrix(x)
-print(type(em))
-# print(em.sum(axis=1))
+    em = create_emission_matrix(x)
+    print(type(em))
+    # print(em.sum(axis=1))
