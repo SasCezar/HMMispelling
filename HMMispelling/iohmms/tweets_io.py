@@ -1,6 +1,6 @@
 import csv
 import re
-
+from codecs import open
 import os.path as path
 
 
