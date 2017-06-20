@@ -213,7 +213,11 @@ simple_qwerty = {
           [None, 'z', 'x'],
           [None, None, None]
           ],
-    ' ': [['n', 'm', 'c', 'v', 'b', ' ', 'B', 'V', 'C', 'M', 'n']]
+    # ' ': [['n', 'm', 'c', 'v', 'b', None, None, ' ', None, None, 'B', 'V', 'C', 'M', 'n']]
+    ' ': [['v', 'b', 'n'],
+          [None, ' ', None],
+          ['V', 'B', 'N']
+          ]
 }
 
 
@@ -298,7 +302,7 @@ class KeyboardPseudoUniformError(KeyBoardErrorModel):
 
 
 class KeyBoardGaussianError(KeyBoardErrorModel):
-    def __init__(self, layout=simple_qwerty, mean=0, variance=1):
+    def __init__(self, layout=simple_qwerty, mean=0, variance=0.05):
         super().__init__(layout)
         self.mean = mean
         self.variance = variance
@@ -353,7 +357,9 @@ def create_emission_matrix(errors_distributions):
 
     emission_matrix = np.full((size, size), epsilon, dtype=float)
     key_list = []
-    map_to_zero = list(zip(list(errors_distributions.keys()), range(0, size)))
+    keys_list = list(errors_distributions.keys())
+    keys_list.sort()
+    map_to_zero = list(zip(keys_list, range(0, size)))
     map_to_zero = dict(map_to_zero)
 
     for key in errors_distributions:
