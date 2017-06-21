@@ -224,6 +224,7 @@ simple_qwerty = {
 class KeyBoardErrorModel(metaclass=ABCMeta):
     def __init__(self, layout=simple_qwerty):
         self.layout = layout
+        self.name = "General"
 
     def evaluate_error(self):
         """
@@ -245,8 +246,16 @@ class KeyBoardErrorModel(metaclass=ABCMeta):
         """
         pass
 
+    def __str__(self):
+        return self.name
+
 
 class KeyboardUniformError(KeyBoardErrorModel):
+
+    def __init__(self):
+        super().__init__()
+        self.name = "Uniform"
+
     def _distribution_(self, neighbors):
         """
         Implements the the uniform error distribution
@@ -271,6 +280,7 @@ class KeyboardPseudoUniformError(KeyBoardErrorModel):
     def __init__(self, layout=simple_qwerty, key_prob=0.7):
         super().__init__(layout)
         self.key_prob = key_prob
+        self.name = "PseudoUniform_key-prob={}".format(key_prob)
 
     def _distribution_(self, neighbors):
         """
@@ -306,6 +316,7 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
         super().__init__(layout)
         self.mean = mean
         self.variance = variance
+        self.name = "Gaussian_variance={}".format(variance)
 
     def _distribution_(self, neighbors):
         """
