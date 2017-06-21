@@ -2,8 +2,7 @@ import argparse
 import logging
 
 from HMMispelling.core import keyboard_errors, model
-from HMMispelling.iohmms import frequency_parser
-from iohmms import tweets_io
+from HMMispelling.iohmms import frequency_parser, tweets_io
 
 
 def predict_tweets(in_path, out_path, model):
@@ -43,8 +42,6 @@ if __name__ == "__main__":
 
     parser.add_argument("-input", type=str, default=100)
     parser.add_argument("-out", type=str, default=100)
-
-    subparser = parser.add_subparsers(dest="subparser")
 
     parser.add_argument("-error_dist", type=str, default="Gaussian")
     parser.add_argument("-error_variance", type=float, default=1)
