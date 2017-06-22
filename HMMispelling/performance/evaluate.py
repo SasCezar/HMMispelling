@@ -1,14 +1,17 @@
 import HMMispelling.iohmms.tweets_io as tweetio
 from os import path, listdir
+from itertools import product
 
-
-def count_indexes(tweets_scores):
-    indexes = {1: 0, 0: 0, -1: 0}
+def count_indexes(tweets_evals):
+    a = [0, 1]
+    indexes = {}
+    for element in list(product(a)):
+        indexes[element] = 0
     total_element = 0
-    for tweet_id in tweets_scores:
-        for score in tweets_scores[tweet_id]:
+    for tweet_id in tweets_evals:
+        for score in tweets_evals[tweet_id]:
             indexes[score] += 1
-            total_element += 1
+        total_element += len(tweets_evals[tweet_id])
     for value in indexes:
         indexes[value] /= total_element
     return indexes
@@ -64,11 +67,16 @@ def evaluate(tweets_path, corrected_path, out_path):
 
 
 def check(corrected, perturbed, truth):
-    if corrected == truth:
-        return 1
-    if corrected == perturbed:
-        return 0
-    return -1
+    return (is_perturbed(perturbed, truth), is_corrected(perturbed, corrected), is_truth(truth, corrected))
+
+def is_perturbed(perturbed, truth):
+    return perturbed != truth
+
+def is_corrected(perturbed, corrected):
+    return perturbed != corrected
+
+def is_truth(truth, corrected):
+    return truth == corrected
 
 
 def evaluate_t():
