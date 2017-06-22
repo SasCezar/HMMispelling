@@ -251,7 +251,6 @@ class KeyBoardErrorModel(metaclass=ABCMeta):
 
 
 class KeyboardUniformError(KeyBoardErrorModel):
-
     def __init__(self):
         super().__init__()
         self.name = "Uniform"
@@ -277,7 +276,7 @@ class KeyboardUniformError(KeyBoardErrorModel):
 
 
 class KeyboardPseudoUniformError(KeyBoardErrorModel):
-    def __init__(self, layout=simple_qwerty, key_prob=0.7):
+    def __init__(self, key_prob=0.8, layout=simple_qwerty):
         super().__init__(layout)
         self.key_prob = key_prob
         self.name = "PseudoUniform_key-prob={}".format(key_prob)
@@ -312,9 +311,9 @@ class KeyboardPseudoUniformError(KeyBoardErrorModel):
 
 
 class KeyBoardGaussianError(KeyBoardErrorModel):
-    def __init__(self, layout=simple_qwerty, mean=0, variance=0.05):
+    def __init__(self, variance=0.5, layout=simple_qwerty):
         super().__init__(layout)
-        self.mean = mean
+        self.mean = 0
         self.variance = variance
         self.name = "Gaussian_variance={}".format(variance)
 
@@ -389,6 +388,17 @@ def create_emission_matrix(errors_distributions):
     observations.sort()
 
     return observations, result
+
+
+def error_factory(model, param):
+    if model == "Gaussian":
+        error_model = KeyBoardGaussianError(param)
+    if model == "Uniform":
+        error_model = KeyboardUniformError()
+    if model == "PseudoUniform":
+        error_model = KeyboardPseudoUniformError(param)
+
+    return error_model
 
 
 if __name__ == "__main__":
