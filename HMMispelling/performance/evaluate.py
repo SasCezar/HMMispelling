@@ -2,10 +2,11 @@ import HMMispelling.iohmms.tweets_io as tweetio
 from os import path, listdir
 from itertools import product
 
+
 def count_indexes(tweets_evals):
     a = [0, 1]
     indexes = {}
-    for element in list(product(a)):
+    for element in list(product(a, a, a)):
         indexes[element] = 0
     total_element = 0
     for tweet_id in tweets_evals:
@@ -31,56 +32,54 @@ def evaluate(tweets_path, corrected_path, out_path):
     perturbed_tweets = tweetio.load_tweets(tweets_path + "_autowrong.txt")
     truth_tweets = tweetio.load_tweets(tweets_path + "_cleaned.txt")
 
-    corrected_files = load_files(file_name, corrected_path)
+    correct_file_name, _ = path.splitext(path.basename(corrected_path))
 
-    for corrected_file in corrected_files:
+    corrected_tweets = tweetio.load_tweets(corrected_path)
+    for tweet_id in truth_tweets:
+        truth_tweet = truth_tweets[tweet_id]
+        perturbed_tweet = perturbed_tweets[tweet_id]
+        corrected_tweet = corrected_tweets[tweet_id]
 
-        correct_file_name, _ = path.splitext(path.basename(corrected_file))
+        # check if the tweet is consistent with the ground truth
+        tweets_evals[tweet_id] = [check(corrected_tweet, perturbed_tweet, truth_tweet)]
 
-        corrected_tweets = tweetio.load_tweets(corrected_file)
-        for tweet_id in truth_tweets:
-            truth_tweet = truth_tweets[tweet_id]
-            perturbed_tweet = perturbed_tweets[tweet_id]
-            corrected_tweet = corrected_tweets[tweet_id]
+        # check if every word of the tweet is consistent with the ground truth
+        words_check = []
 
-            # check if the tweet is consistent with the ground truth
-            tweets_evals[tweet_id] = [check(corrected_tweet, perturbed_tweet, truth_tweet)]
+        for truth_word, perturbed_word, corrected_word in zip(truth_tweet.split(), perturbed_tweet.split(),
+                                                              corrected_tweet.split()):
+            words_check += [check(corrected_word, perturbed_word, truth_word)]
+            words_evals[tweet_id] = words_check
 
-            # check if every word of the tweet is consistent with the ground truth
-            words_check = []
+    tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation.txt"), tweets_evals)
+    tweetio.write_tweets(path.join(out_path, correct_file_name + "_word_evaluation.txt"), words_evals)
 
-            for truth_word, perturbed_word, corrected_word in zip(truth_tweet.split(), perturbed_tweet.split(),
-                                                                  corrected_tweet.split()):
-                words_check += [check(corrected_word, perturbed_word, truth_word)]
-                words_evals[tweet_id] = words_check
+    tweets_index = count_indexes(tweets_evals)
+    words_index = count_indexes(words_evals)
 
-        tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation.txt"), tweets_evals)
-        tweetio.write_tweets(path.join(out_path, correct_file_name + "_word_evaluation.txt"), words_evals)
+    tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation_index.txt"), tweets_index)
+    tweetio.write_tweets(path.join(out_path, correct_file_name + "_word_evaluation_index.txt"), words_index)
 
-        tweets_index = count_indexes(tweets_evals)
-        words_index = count_indexes(words_evals)
-
-        tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation_index.txt"), tweets_index)
-        tweetio.write_tweets(path.join(out_path, correct_file_name + "_word_evaluation_index.txt"), words_index)
-
-        return tweets_index, words_index
+    return tweets_index, words_index
 
 
 def check(corrected, perturbed, truth):
     return (is_perturbed(perturbed, truth), is_corrected(perturbed, corrected), is_truth(truth, corrected))
 
+
 def is_perturbed(perturbed, truth):
-    return perturbed != truth
+    return int(perturbed != truth)
+
 
 def is_corrected(perturbed, corrected):
-    return perturbed != corrected
+    return int(perturbed != corrected)
+
 
 def is_truth(truth, corrected):
-    return truth == corrected
+    return int(truth == corrected)
 
 
 def evaluate_t():
     evaluate("../../dataset/apple_tweets", "../../results/predictions/", "../../results/performance")
 
-
-evaluate_t()
+# evaluate_t()
