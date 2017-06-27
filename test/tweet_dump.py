@@ -22,11 +22,12 @@ def tweet2text(out_path, keyword):
 
     stream = tweepy.Stream(auth=api.auth, listener=stream_listener)
 
-    stream.filter(track=[keyword], languages=["en"], async=True)
+    stream.filter(track=["AzerbaijanGP", "F1", "BakuGP", "ScuderiaFerrari", "MercedesAMGF1", "LewisHamilton"],
+                  languages=["en"], async=True)
 
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-    keyword = "trump"
-    out = "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\" + keyword + "_tweets.txt"
+    keyword = "F1"
+    out = "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\" + keyword + "_training.txt"
     tweet2text(out, keyword=keyword)

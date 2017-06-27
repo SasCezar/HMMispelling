@@ -4,6 +4,7 @@ import HMMispelling.iohmms.tweets_io as tweetio
 from os import path, listdir
 from itertools import product
 
+
 def count_indexes(tweets_evals):
     a = [0, 1]
     indexes = {}
@@ -22,12 +23,14 @@ def load_files(file_name, in_path):
     files = [path.join(in_path, f) for f in listdir(in_path) if path.isfile(path.join(in_path, f)) if file_name in f]
     return files
 
+
 def get_top_n(dict, n):
     sorted_words_reshape = {}
     for correction_type in dict:
         words_reshape = [(k, dict[correction_type][k]) for k in dict[correction_type]]
-        sorted_words_reshape[correction_type] = sorted(words_reshape, key=lambda x:-x[1])[:n]
+        sorted_words_reshape[correction_type] = sorted(words_reshape, key=lambda x: -x[1])[:n]
     return sorted_words_reshape
+
 
 def evaluate(tweets_path, corrected_path, out_path):
     tweets_evals = {}
@@ -57,21 +60,19 @@ def evaluate(tweets_path, corrected_path, out_path):
             words_check += [check(corrected_word, perturbed_word, truth_word)]
             words_evals[tweet_id] = words_check
 
-    tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation.txt"), tweets_evals)
+    # tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation.txt"), tweets_evals)
     tweetio.write_tweets(path.join(out_path, correct_file_name + "_word_evaluation.txt"), words_evals)
 
-    tweets_index = count_indexes(tweets_evals)
+    # tweets_index = count_indexes(tweets_evals)
     words_index = count_indexes(words_evals)
 
-    tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation_index.txt"), tweets_index)
+    # tweetio.write_tweets(path.join(out_path, correct_file_name + "_tweet_evaluation_index.txt"), tweets_index)
     tweetio.write_tweets(path.join(out_path, correct_file_name + "_word_evaluation_index.txt"), words_index)
 
-    return tweets_index, words_index
+    return words_index
 
 
 def evaluate_type_of_errors(tweets_path, corrected_path, out_path):
-
-    words_evals = {}
 
     file_name, _ = path.splitext(path.basename(tweets_path))
 
@@ -102,7 +103,7 @@ def evaluate_type_of_errors(tweets_path, corrected_path, out_path):
 
     top_corrected_words = get_top_n(word_compare, 10)
 
-    return  top_corrected_words
+    return top_corrected_words
 
 
 def check(corrected, perturbed, truth):
@@ -120,7 +121,5 @@ def is_corrected(perturbed, corrected):
 def is_truth(truth, corrected):
     return int(truth == corrected)
 
-def evaluate_t():
-    evaluate("../../dataset/apple_tweets", "../../results/predictions/", "../../results/performance")
 
 # pprint.pprint(evaluate_type_of_errors("../../dataset/apple_tweets", "../../results/predictions/apple_tweets_autowrong_words_corrected_Gaussian_variance=0.25.txt", "../../results/performance"))

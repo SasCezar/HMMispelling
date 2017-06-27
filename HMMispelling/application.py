@@ -1,6 +1,9 @@
 import argparse
 import csv
 from os import path, listdir
+
+import logging
+
 from HMMispelling.core import keyboard_errors, model
 from HMMispelling.iohmms import frequency_parser, tweets_io
 from core.keyboard_errors import error_factory
@@ -66,7 +69,20 @@ def not_perturbed_not_corrected_ratio(scores):
     return result
 
 
-def find_max(in_path):
+def maxes2csv(results, out_path):
+    with open(out_path, "wt", encoding="utf8", newline="") as outf:
+        writer = csv.writer(outf, delimiter="\t")
+
+        writer.writerow(["Correction Rate", "Correct Unchanged"])
+
+        for result in results:
+            pert_corr_ratio, not_pert_not_corr_ratio, sum = results[result]
+
+            writer.writerow([pert_corr_ratio, not_pert_not_corr_ratio, sum])
+
+
+
+def find_max(in_path, out_path):
     files = load_files("index", in_path)
 
     metrics = {}
@@ -88,30 +104,33 @@ def find_max(in_path):
 
     sorted_result = sorted(results, key=lambda v: -v[1][2])
 
-    print(sorted_result)
+    maxes2csv(sorted_result, out_path)
 
 
-def find_best_score(tweets_path, corrected_path, out_path):
-    tweet_file_path = tweets_path + "_autowrong.txt"
-    states, transition_prob = frequency_parser.load_dataframe("./resources/SwiftKey_en_US_letters_frequencies.txt")
-    for error_string in ["Gaussian", "PseudoUniform"]:
-        for int_param in range(5, 100, 5):
-            param = float(int_param / 100)
-            error_model = error_factory(error_string, param)
-            error = error_model.evaluate_error()
-            possible_observation, emission_prob = keyboard_errors.create_emission_matrix(error)
+def bruteforce(tweets_path, corrected_path, out_path):
+    for trans_file in ["SwiftKey", "Hybrid", "Twitter"]:
+        tweet_file_path = tweets_path + "_autowrong.txt"
+        states, transition_prob = frequency_parser.load_dataframe("./resources/{}_en_US_letters_frequencies.txt".format(trans_file))
+        for error_string in ["Gaussian", "PseudoUniform"]:
 
-            start_prob = transition_prob[0]
-            mispelling_model = model.MispellingHMM(start_probability=start_prob, transition_matrix=transition_prob,
-                                                   hidden_states=states, observables=possible_observation,
-                                                   emission_matrix=emission_prob)
+            for int_param in range(5, 100, 5):
+                param = float(int_param / 100)
+                logging.info("Transition model {} - Error model {} - Model param {}".format(trans_file, error_string, param))
+                error_model = error_factory(error_string, param)
+                error = error_model.evaluate_error()
+                possible_observation, emission_prob = keyboard_errors.create_emission_matrix(error)
 
-            tweet_file_corrected, word_file_corrected = predict(tweet_file_path, corrected_path, mispelling_model,
-                                                                str(error_model))
+                start_prob = transition_prob[0]
+                mispelling_model = model.MispellingHMM(start_probability=start_prob, transition_matrix=transition_prob,
+                                                       hidden_states=states, observables=possible_observation,
+                                                       emission_matrix=emission_prob)
 
-            file_name, _ = path.splitext(path.basename(tweets_path))
-            evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
-            evaluate.evaluate(tweets_path, word_file_corrected, out_path)
+                tweet_file_corrected, word_file_corrected = predict(tweet_file_path, corrected_path, mispelling_model,
+                                                                    "_transition=" + trans_file + "_" + str(error_model))
+
+                file_name, _ = path.splitext(path.basename(tweets_path))
+                evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
+                evaluate.evaluate(tweets_path, word_file_corrected, out_path)
 
 
 def main(args):
@@ -129,13 +148,14 @@ def main(args):
         predict(args.input, args.out, mispelling_model, str(error_model))
 
     if args.subparser == "bruteforce":
-        find_best_score(args.tweets_path, args.corrected_path, args.out_path)
+        bruteforce(args.tweets_path, args.corrected_path, args.out_path)
 
     if args.subparser == "find_max":
         find_max(args.res_path)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     parser = argparse.ArgumentParser(description="A HMM misspelling correction tool")
 
     subparser = parser.add_subparsers(dest="subparser")
@@ -152,8 +172,8 @@ if __name__ == "__main__":
     brute.add_argument("-corrected_path", type=str)
     brute.add_argument("-out_path", type=str)
 
-    max = subparser.add_parser("find_max")
-    max.add_argument("-res_path", type=str)
+    f_max = subparser.add_parser("find_max")
+    f_max.add_argument("-res_path", type=str)
 
     args = parser.parse_args()
 
