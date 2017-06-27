@@ -13,8 +13,7 @@ def count_indexes(tweets_evals):
         for score in tweets_evals[tweet_id]:
             indexes[score] += 1
         total_element += len(tweets_evals[tweet_id])
-    for value in indexes:
-        indexes[value] /= total_element
+
     return indexes
 
 

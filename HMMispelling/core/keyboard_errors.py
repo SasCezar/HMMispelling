@@ -359,7 +359,8 @@ class KeyBoardGaussianError(KeyBoardErrorModel):
         return gaussian
 
 
-epsilon = sys.float_info.epsilon
+# epsilon = sys.float_info.epsilon
+epsilon = 10*10**-5
 
 
 def create_emission_matrix(errors_distributions):

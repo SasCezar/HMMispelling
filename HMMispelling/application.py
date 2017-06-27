@@ -1,8 +1,6 @@
 import argparse
-from os import path
-
-from numpy import arange
-
+import csv
+from os import path, listdir
 from HMMispelling.core import keyboard_errors, model
 from HMMispelling.iohmms import frequency_parser, tweets_io
 from core.keyboard_errors import error_factory
@@ -53,10 +51,47 @@ def predict(in_path, out_path, model, params):
     return tweets_out, words_out
 
 
-def find_best_score(tweets_path, corrected_path, out_path):
-    words_scores = {}
-    tweets_scores = {}
+def load_files(file_name, in_path):
+    files = [path.join(in_path, f) for f in listdir(in_path) if path.isfile(path.join(in_path, f)) if file_name in f]
+    return files
 
+
+def perturbed_corrected_ratio(scores):
+    result = scores[(1, 1, 1)] / (scores[(1, 1, 1)] + scores[(1, 1, 0)] + scores[(1, 0, 0)])
+    return result
+
+
+def not_perturbed_not_corrected_ratio(scores):
+    result = scores[(0, 0, 1)] / (scores[(0, 0, 1)] + scores[(0, 1, 0)])
+    return result
+
+
+def find_max(in_path):
+    files = load_files("index", in_path)
+
+    metrics = {}
+    for file in files:
+        with open(file, "rt", encoding="utf8") as inf:
+            reader = csv.reader(inf, delimiter="\t")
+            scores = {}
+            for key, value in reader:
+                scores[eval(key)] = int(value)
+
+            pert_corr_ratio = perturbed_corrected_ratio(scores)
+            not_pert_not_corr_ratio = not_perturbed_not_corrected_ratio(scores)
+
+            score_sum = pert_corr_ratio + not_pert_not_corr_ratio
+
+            metrics[path.splitext(path.basename(file))[0]] = (pert_corr_ratio, not_pert_not_corr_ratio, score_sum)
+
+    results = [(k, metrics[k]) for k in metrics]
+
+    sorted_result = sorted(results, key=lambda v: -v[1][2])
+
+    print(sorted_result)
+
+
+def find_best_score(tweets_path, corrected_path, out_path):
     tweet_file_path = tweets_path + "_autowrong.txt"
     states, transition_prob = frequency_parser.load_dataframe("./resources/SwiftKey_en_US_letters_frequencies.txt")
     for error_string in ["Gaussian", "PseudoUniform"]:
@@ -75,13 +110,8 @@ def find_best_score(tweets_path, corrected_path, out_path):
                                                                 str(error_model))
 
             file_name, _ = path.splitext(path.basename(tweets_path))
-            tweet_tweet_index, tweet_word_index = evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
-            word_tweet_index, word_word_index = evaluate.evaluate(tweets_path, word_file_corrected, out_path)
-            # tweets_scores[str(error_model)] = tweet_index
-            # words_scores[str(error_model)] = word_index
-
-            # tweet_max = find_max(tweets_scores)
-            # word_max = find_max(words_scores)
+            evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
+            evaluate.evaluate(tweets_path, word_file_corrected, out_path)
 
 
 def main(args):
@@ -101,6 +131,9 @@ def main(args):
     if args.subparser == "bruteforce":
         find_best_score(args.tweets_path, args.corrected_path, args.out_path)
 
+    if args.subparser == "find_max":
+        find_max(args.res_path)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A HMM misspelling correction tool")
@@ -118,6 +151,9 @@ if __name__ == "__main__":
     brute.add_argument("-tweets_path", type=str)
     brute.add_argument("-corrected_path", type=str)
     brute.add_argument("-out_path", type=str)
+
+    max = subparser.add_parser("find_max")
+    max.add_argument("-res_path", type=str)
 
     args = parser.parse_args()
 
