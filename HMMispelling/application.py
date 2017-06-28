@@ -4,10 +4,23 @@ from os import path, listdir
 
 import logging
 
+import pickle
+
 from HMMispelling.core import keyboard_errors, model
 from HMMispelling.iohmms import frequency_parser, tweets_io
 from core.keyboard_errors import error_factory
 from performance import evaluate
+
+
+def in_dict_corrected(orig, pred):
+    result = []
+    for t, p in zip(orig.split(), pred.split()):
+        if t != p and p.lower() not in word_dict_string:
+            result += [t]
+        else:
+            result += [p]
+
+    return " ".join(result)
 
 
 def __predict_tweets__(tweets, model):
@@ -15,9 +28,16 @@ def __predict_tweets__(tweets, model):
     for tweet_id in tweets:
         corrected = model.viterbi(tweets[tweet_id])
 
+        if word_dict_string:
+            corrected = in_dict_corrected(tweets[tweet_id], "".join(corrected))
+
         corrected_tweets[tweet_id] = ''.join(corrected)
 
     return corrected_tweets
+
+
+# words_dict = None
+words_dict = pickle.load(open(".//resources//dictionary_en_US.bin", "rb"))
 
 
 def __predict_words__(tweets, model):
@@ -26,6 +46,9 @@ def __predict_words__(tweets, model):
         corrected_tweet = []
         for word in tweets[tweet_id]:
             corrected = model.viterbi(word)
+
+            if words_dict and ''.join(corrected).lower() not in words_dict:
+                corrected = word
 
             corrected_tweet += [''.join(corrected)]
 
@@ -73,13 +96,10 @@ def maxes2csv(results, out_path):
     with open(out_path, "wt", encoding="utf8", newline="") as outf:
         writer = csv.writer(outf, delimiter="\t")
 
-        writer.writerow(["Correction Rate", "Correct Unchanged"])
+        writer.writerow(["File", "Precision", "Recall", "F1", "Accuracy"])
 
         for result in results:
-            pert_corr_ratio, not_pert_not_corr_ratio, sum = results[result]
-
-            writer.writerow([pert_corr_ratio, not_pert_not_corr_ratio, sum])
-
+            writer.writerow([result[0]] + list(result[1]))
 
 
 def find_max(in_path, out_path):
@@ -93,29 +113,57 @@ def find_max(in_path, out_path):
             for key, value in reader:
                 scores[eval(key)] = int(value)
 
-            pert_corr_ratio = perturbed_corrected_ratio(scores)
-            not_pert_not_corr_ratio = not_perturbed_not_corrected_ratio(scores)
-
-            score_sum = pert_corr_ratio + not_pert_not_corr_ratio
-
-            metrics[path.splitext(path.basename(file))[0]] = (pert_corr_ratio, not_pert_not_corr_ratio, score_sum)
+            metrics[path.splitext(path.basename(file))[0]] = get_performance_measures(scores)
 
     results = [(k, metrics[k]) for k in metrics]
 
-    sorted_result = sorted(results, key=lambda v: -v[1][2])
+    sorted_result = sorted(results, key=lambda v: -v[1][3])
 
     maxes2csv(sorted_result, out_path)
+
+
+def get_precision(scores):
+    result = scores[(1, 1, 1)] / (scores[(1, 1, 1)] + scores[(1, 1, 0)] + scores[(0, 1, 0)])
+    return result
+
+
+def get_recall(scores):
+    result = scores[(1, 1, 1)] / (scores[(1, 1, 1)] + scores[(1, 0, 0)])
+    return result
+
+
+def get_f1_score(precision, recall):
+    result = 2 * (precision * recall) / (precision + recall)
+    return result
+
+
+def get_accuracy(scores):
+    result = (scores[(1, 1, 1)] + scores[(0, 0, 1)]) / (scores[(1, 1, 1)] + scores[(1, 0, 0)] + scores[(0, 1, 0)] + scores[(1, 1, 0)] + scores[(0, 0, 1)])
+    return result
+
+
+def get_performance_measures(scores):
+    precision = get_precision(scores)
+    recall = get_recall(scores)
+    f1_score = get_f1_score(precision, recall)
+    accuracy = get_accuracy(scores)
+    return precision, recall, f1_score, accuracy
+
+
+word_dict_string = "dict=Word2Vec_" if words_dict else ""
 
 
 def bruteforce(tweets_path, corrected_path, out_path):
     for trans_file in ["SwiftKey", "Hybrid", "Twitter"]:
         tweet_file_path = tweets_path + "_autowrong.txt"
-        states, transition_prob = frequency_parser.load_dataframe("./resources/{}_en_US_letters_frequencies.txt".format(trans_file))
+        states, transition_prob = frequency_parser.load_dataframe(
+            "./resources/{}_en_US_letters_frequencies.txt".format(trans_file))
         for error_string in ["Gaussian", "PseudoUniform"]:
 
             for int_param in range(5, 100, 5):
                 param = float(int_param / 100)
-                logging.info("Transition model {} - Error model {} - Model param {}".format(trans_file, error_string, param))
+                logging.info(
+                    "Transition model {} - Error model {} - Model param {}".format(trans_file, error_string, param))
                 error_model = error_factory(error_string, param)
                 error = error_model.evaluate_error()
                 possible_observation, emission_prob = keyboard_errors.create_emission_matrix(error)
@@ -126,7 +174,8 @@ def bruteforce(tweets_path, corrected_path, out_path):
                                                        emission_matrix=emission_prob)
 
                 tweet_file_corrected, word_file_corrected = predict(tweet_file_path, corrected_path, mispelling_model,
-                                                                    "_transition=" + trans_file + "_" + str(error_model))
+                                                                    word_dict_string + "transition=" + trans_file + "_"
+                                                                    + str(error_model))
 
                 file_name, _ = path.splitext(path.basename(tweets_path))
                 evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
@@ -144,7 +193,8 @@ def bruteforce(tweets_path, corrected_path, out_path):
                                                emission_matrix=emission_prob)
 
         tweet_file_corrected, word_file_corrected = predict(tweet_file_path, corrected_path, mispelling_model,
-                                                            "transition=" + trans_file + "_" + str(error_model))
+                                                            word_dict_string + "transition=" + trans_file + "_" +
+                                                            str(error_model))
 
         file_name, _ = path.splitext(path.basename(tweets_path))
         evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
@@ -169,7 +219,7 @@ def main(args):
         bruteforce(args.tweets_path, args.corrected_path, args.out_path)
 
     if args.subparser == "find_max":
-        find_max(args.res_path)
+        find_max(args.res_path, args.out_path)
 
 
 if __name__ == "__main__":
@@ -192,6 +242,7 @@ if __name__ == "__main__":
 
     f_max = subparser.add_parser("find_max")
     f_max.add_argument("-res_path", type=str)
+    f_max.add_argument("-out_path", type=str)
 
     args = parser.parse_args()
 

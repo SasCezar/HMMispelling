@@ -54,4 +54,4 @@ def clean(tweet):
     return tweet
 
 
-clean_tweets("C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training.txt")
+# clean_tweets("C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training.txt")
