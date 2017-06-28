@@ -2,7 +2,7 @@
 	Remove mentions (es @BBC), urls, and non letters
 
 - Training dataset:
-	Used only non letters + space bigrams
+	Used only letters + space bigrams
 	Removed urls (from twitter dataset training)
 	Stats (Hybrid, ma se sommi separatamente mi evito di computare per 30min): 
 		"C:\Program Files\Anaconda3\python.exe" C:/Users/sasce/PycharmProjects/HMMispelling/HMMispelling/utils/ngram_count.py
