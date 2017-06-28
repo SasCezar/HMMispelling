@@ -1,0 +1,31 @@
+- Tweets preprocessing:
+	Remove mentions (es @BBC), urls, and non letters
+
+- Training dataset:
+	Used only non letters + space bigrams
+	Removed urls (from twitter dataset training)
+	Stats (Hybrid, ma se sommi separatamente mi evito di computare per 30min): 
+		"C:\Program Files\Anaconda3\python.exe" C:/Users/sasce/PycharmProjects/HMMispelling/HMMispelling/utils/ngram_count.py
+			# Swift Key news
+			2017-06-27 13:52:02,885 : INFO : Num of chars 204233394
+			# Swift Key twitter
+			2017-06-27 14:01:05,932 : INFO : Num of chars 164456394
+			# Swift Key blogs
+			2017-06-27 14:08:39,244 : INFO : Num of chars 207723793
+			# Twitter apple
+			2017-06-27 14:17:46,833 : INFO : Num of chars 2376252
+			# Twitter trump
+			2017-06-27 14:18:18,272 : INFO : Num of chars 11849767
+
+			
+			
+			2017-06-27 14:18:40,925 : INFO : Number of elements in counter: 2808 (matrice 53x53)
+			2017-06-27 14:19:23,813 : INFO : Number of elements in counter.elements: 558993854 (è la somma di quelli sopra, o almeno dovrebbe xD)
+
+
+
+            ###### PER PIGA
+
+            SwiftKey Dataset = 204233394+164456394+207723793 == 576413581 chars
+            Twitter Dataset = 2376252+11849767 == 14226019 chars
+            Hybrid Dataset = 204233394+164456394+207723793+2376252+11849767 == 590639600 chars
