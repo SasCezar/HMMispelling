@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>HMMispelling</title>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://intercoolerreleases-leaddynocom.netdna-ssl.com/intercooler-1.1.1.min.js"></script>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- load MUI -->
+    <link href="//cdn.muicss.com/mui-0.9.17/css/mui.min.css" rel="stylesheet" type="text/css"/>
+    <script src="//cdn.muicss.com/mui-0.9.17/js/mui.min.js"></script>
+</head>
+
+<body>
+
+<style>
+    body {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial;
+    }
+</style>
+<div class="mui-appbar">
+    <div style="vertical-align: middle">Hello World</div>
+</div>
+
+<div id="container" class="mui-container">
+    <div>
+        <div class="mui-panel">
+            <form id="form" role="form" method="post" autocomplete="off">
+                <div class="mui-textfield">
+                    {% csrf_token %}
+                    <input name="search"
+                           id="search"
+                           type="text"
+                           placeholder="Start typing here"
+                           ic-post-to="{% url 'results' %}"
+                           ic-trigger-on="keyup changed"
+                           ic-trigger-delay="100ms"
+                           ic-target="#search-result-container"/>
+                </div>
+            </form>
+            <span id="search-result-container"></span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<style>
+    .demo-list-item {
+        width: 300px;
+    }
+</style>
+{% if text %}
+    <div class="mui-panel">
+        <span class="mdl-chip mdl-chip--contact">
+            <img class="mdl-chip__contact" src="{{ profile_img }}"/>
+            <span class="mdl-chip__text">@{{ author }}</span>
+        </span>
+        <p class="mdl-list__item"><span class="mdl-list__item-primary-content">{{ text | safe }}</span></p>
+
+    </div>
+{% endif %}
