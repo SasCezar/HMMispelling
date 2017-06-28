@@ -132,6 +132,24 @@ def bruteforce(tweets_path, corrected_path, out_path):
                 evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
                 evaluate.evaluate(tweets_path, word_file_corrected, out_path)
 
+        error_string = "Uniform"
+        logging.info("Transition model {} - Error model {}".format(trans_file, error_string))
+        error_model = error_factory(error_string)
+        error = error_model.evaluate_error()
+        possible_observation, emission_prob = keyboard_errors.create_emission_matrix(error)
+
+        start_prob = transition_prob[0]
+        mispelling_model = model.MispellingHMM(start_probability=start_prob, transition_matrix=transition_prob,
+                                               hidden_states=states, observables=possible_observation,
+                                               emission_matrix=emission_prob)
+
+        tweet_file_corrected, word_file_corrected = predict(tweet_file_path, corrected_path, mispelling_model,
+                                                            "transition=" + trans_file + "_" + str(error_model))
+
+        file_name, _ = path.splitext(path.basename(tweets_path))
+        evaluate.evaluate(tweets_path, tweet_file_corrected, out_path)
+        evaluate.evaluate(tweets_path, word_file_corrected, out_path)
+
 
 def main(args):
     states, transition_prob = frequency_parser.load_dataframe("./resources/SwiftKey_en_US_letters_frequencies.txt")

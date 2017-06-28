@@ -391,7 +391,7 @@ def create_emission_matrix(errors_distributions):
     return observations, result
 
 
-def error_factory(model, param):
+def error_factory(model, param=None):
     if model == "Gaussian":
         error_model = KeyBoardGaussianError(param)
     if model == "Uniform":

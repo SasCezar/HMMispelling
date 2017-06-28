@@ -52,3 +52,6 @@ def clean(tweet):
     tweet = tweet.strip()  # spaces at head or tail
 
     return tweet
+
+
+clean_tweets("C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training.txt")

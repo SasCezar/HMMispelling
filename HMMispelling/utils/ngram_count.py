@@ -99,18 +99,19 @@ def words_ngram(files, out_file, n=2):
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-    """
     files = ["C:\\Users\\sasce\\Downloads\\Coursera-SwiftKey\\final\\en_US\\en_US.news.txt",
              "C:\\Users\\sasce\\Downloads\\Coursera-SwiftKey\\final\\en_US\\en_US.twitter.txt",
              "C:\\Users\\sasce\\Downloads\\Coursera-SwiftKey\\final\\en_US\\en_US.blogs.txt",
-             "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training.txt",
-             "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\trump_training.txt"]
+             "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training_cleaned.txt",
+             "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\trump_training_cleaned.txt"]
     """
 
-    files = ["C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training.txt",
-             "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\trump_training.txt"]
+    files = ["C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\apple_training_cleaned.txt",
+             "C:\\Users\\sasce\\PycharmProjects\\HMMispelling\\dataset\\trump_training_cleaned.txt"]
 
-    out_file = "..\\resources\\Twitter_en_US_letters_frequencies.txt"
+    """
+
+    out_file = "..\\resources\\Hybrid_en_US_letters_frequencies.txt"
     letters_ngams(files, out_file, 2)
 
     # out_file = "..\\resources\\SwiftKey_en_US_words_frequencies.txt"
