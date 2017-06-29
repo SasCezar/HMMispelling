@@ -5,6 +5,7 @@ from os import path, listdir
 import logging
 
 import pickle
+from nltk.corpus import wordnet
 
 from HMMispelling.core import keyboard_errors, model
 from HMMispelling.iohmms import frequency_parser, tweets_io
@@ -15,10 +16,14 @@ from performance import evaluate
 def in_dict_corrected(orig, pred):
     result = []
     for t, p in zip(orig.split(), pred.split()):
-        if t != p and p.lower() not in word_dict_string:
-            result += [t]
+        if t != p and not wordnet.synsets(p.lower()):
+            r = t
         else:
-            result += [p]
+            r = p
+        if t != p and not wordnet.synsets(t.lower()):
+            r = p
+
+        result += [r]
 
     return " ".join(result)
 
@@ -28,7 +33,7 @@ def __predict_tweets__(tweets, model):
     for tweet_id in tweets:
         corrected = model.viterbi(tweets[tweet_id])
 
-        if word_dict_string:
+        if use_dict:
             corrected = in_dict_corrected(tweets[tweet_id], "".join(corrected))
 
         corrected_tweets[tweet_id] = ''.join(corrected)
@@ -36,7 +41,7 @@ def __predict_tweets__(tweets, model):
     return corrected_tweets
 
 
-words_dict = None
+use_dict = True
 # words_dict = pickle.load(open(".//resources//dictionary_en_US.bin", "rb"))
 
 
@@ -47,10 +52,13 @@ def __predict_words__(tweets, model):
         for word in tweets[tweet_id]:
             corrected = model.viterbi(word)
 
-            if words_dict and ''.join(corrected).lower() not in words_dict:
-                corrected = word
+            r = corrected
+            if use_dict and not wordnet.synsets(''.join(corrected).lower()):
+                r = word
+            if use_dict and not wordnet.synsets(word.lower()):
+                r = corrected
 
-            corrected_tweet += [''.join(corrected)]
+            corrected_tweet += [''.join(r)]
 
         corrected_tweets[tweet_id] = ' '.join(corrected_tweet)
 
@@ -133,6 +141,8 @@ def get_recall(scores):
 
 
 def get_f1_score(precision, recall):
+    if recall + precision == 0:
+        return 0
     result = 2 * (precision * recall) / (precision + recall)
     return result
 
@@ -150,7 +160,7 @@ def get_performance_measures(scores):
     return precision, recall, f1_score, accuracy
 
 
-word_dict_string = "dict=Word2Vec_" if words_dict else ""
+word_dict_string = "dict=NLTKWordNet_" if use_dict else ""
 
 
 def bruteforce(tweets_path, corrected_path, out_path):
