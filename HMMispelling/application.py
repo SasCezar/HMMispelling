@@ -36,8 +36,8 @@ def __predict_tweets__(tweets, model):
     return corrected_tweets
 
 
-# words_dict = None
-words_dict = pickle.load(open(".//resources//dictionary_en_US.bin", "rb"))
+words_dict = None
+# words_dict = pickle.load(open(".//resources//dictionary_en_US.bin", "rb"))
 
 
 def __predict_words__(tweets, model):
