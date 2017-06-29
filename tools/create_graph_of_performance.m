@@ -4,13 +4,13 @@
 % creare immagini per ogni tipo di risultato
 % dare nome agli assi?
 
-path_begin = 'C:\Users\kivid\Dropbox\Universita\Corsi Magistrale\Modelli probabilistici per le decisioni\Progetto Mispelling\HMMispelling\results\performance\';
+path_begin = 'C:\Users\sasce\PycharmProjects\HMMispelling\results\performance\';
 
 p_dataset = 'apple';
 p_tweets = '_tweets';
 p_autowrong = 'autowrong';
 p_vitebimode = 'words';
-p_corrected = '_corrected__';
+p_corrected = '_corrected_';
 p_transition = 'transition=';
 p_training = 'Hybrid';
 p_distribution = 'PseudoUniform';
@@ -18,9 +18,11 @@ p_keyprob = 'key-prob=';
 p_eval = 'word';
 p_evalstatic = '_evaluation_index.txt';
 p_us = '_';
+p_sep = '_-';
 
+subfolder_name = strcat(p_dataset, p_sep, p_us, p_vitebimode, p_corrected, '-', p_us, lower(p_training), p_sep, p_us, lower(p_distribution));
 path_namefile = strcat(p_dataset, p_tweets, p_us, p_autowrong, p_us, p_vitebimode, p_corrected, p_transition, p_training, p_us, p_distribution, p_us, p_keyprob);
-path = strcat(path_begin, path_namefile);
+path = strcat(path_begin, subfolder_name, '\', path_namefile);
 path_end = strcat(p_us, p_eval, p_evalstatic);
 
 freq_table = zeros(5, 19);

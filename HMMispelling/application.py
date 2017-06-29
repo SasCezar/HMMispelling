@@ -1,10 +1,12 @@
 import argparse
 import csv
-from os import path, listdir
+import fnmatch
+import glob
+import os
+from os import path
 
 import logging
 
-import pickle
 from nltk.corpus import wordnet
 
 from HMMispelling.core import keyboard_errors, model
@@ -42,6 +44,8 @@ def __predict_tweets__(tweets, model):
 
 
 use_dict = True
+
+
 # words_dict = pickle.load(open(".//resources//dictionary_en_US.bin", "rb"))
 
 
@@ -85,8 +89,13 @@ def predict(in_path, out_path, model, params):
     return tweets_out, words_out
 
 
-def load_files(file_name, in_path):
-    files = [path.join(in_path, f) for f in listdir(in_path) if path.isfile(path.join(in_path, f)) if file_name in f]
+def load_files(filter, in_path):
+    # files = [path.join(in_path, f) for f in listdir(in_path) if path.isfile(path.join(in_path, f)) if file_name in f]
+    # return files
+
+    # files = [os.path.join(dirpath, f) for dirpath, dirnames, files in os.walk(in_path) for f in fnmatch.filter(files, filter)]
+
+    files = glob.glob(r'{}**\*{}.txt'.format(in_path, filter), recursive=True)
     return files
 
 
@@ -148,7 +157,8 @@ def get_f1_score(precision, recall):
 
 
 def get_accuracy(scores):
-    result = (scores[(1, 1, 1)] + scores[(0, 0, 1)]) / (scores[(1, 1, 1)] + scores[(1, 0, 0)] + scores[(0, 1, 0)] + scores[(1, 1, 0)] + scores[(0, 0, 1)])
+    result = (scores[(1, 1, 1)] + scores[(0, 0, 1)]) / (
+    scores[(1, 1, 1)] + scores[(1, 0, 0)] + scores[(0, 1, 0)] + scores[(1, 1, 0)] + scores[(0, 0, 1)])
     return result
 
 
