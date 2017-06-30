@@ -21,20 +21,17 @@
 
 \documentclass[12pt]{article}
 \usepackage[left=3cm, right=3cm]{geometry}
-
-\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
-\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
 \usepackage{natbib} % Required to change bibliography style to APA
 \usepackage{amsmath} % Required for some math elements 
 \usepackage{tabularx,booktabs,tabulary,array,graphicx,url}
 \usepackage{graphicx}
 \usepackage{multirow}
-%\usepackage{caption}
+\usepackage{caption}
+\usepackage{indentfirst}
 %\usepackage{subcaption}
 \usepackage{subfig}
 \newcommand*\rot{\rotatebox{90}}
 
-\setlength\parindent{0pt} % Removes all indentation from paragraphs
 
 \renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
 
@@ -202,6 +199,48 @@ which is uniform. This distribution gave the best results.
 \label{matrices}
 \end{figure}
 
+\subsection{Training}\label{dataset}
+Table~\ref{tab:dataset} reports the datasets used to realize our project: the
+data were used to train the model parameters. In
+this report we refer to them as \emph{Twitter}~(collection of tweets about apple
+and trump), \emph{Swift}~(collection of news, tweets and
+blogs text) and \emph{Hybrid}~(Tweet + Swift).
+
+All datasets were previously cleaned from all characters
+different from the alphabetical ones(lowercase and uppercase), plus whitespace.
+Moreover, urls and mentions were removed from each tweet in order to avoid
+noisy samples.
+
+\begin{table}[htbp]
+  \centering
+  \setlength{\tabcolsep}{0.4em}
+  \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{lcr}
+    \toprule
+    \textbf{Name}  & \textbf{Source} & \textbf{\#characters} \\
+    \midrule
+    news  & Swift Key  & 204233394 \\
+    twitter & Swift Key  & 164456394 \\
+    blogs & Swift Key  & 207723793 \\
+    apple & Twitter & 2376252 \\
+    trump & Twitter & 11849767 \\
+    \bottomrule
+    $Swift$ & news, twitter, blogs & 576413581 \\
+    $Twitter$ & apple, trump & 14226019 \\
+    $Hybrid$ & Swift, Twitter & 590639600 \\
+    \bottomrule
+    \end{tabular}%
+    \caption{Dataset information}
+  \label{tab:dataset}%
+\end{table}%
+
+\subsection{Dictionary}\label{dict}
+In order to support and enhance our algorithm, we added a
+function which verifies word existence on a dictionary. After the correction of
+every word, this function checks whether the corrected word or the original one is included in
+the dictionary and returns the matching one, giving priority to the corrected
+word in case both are equally present/absent in the dictionary. The dictionary was taken
+from NLTK (see \url{www.nltk.org}).
 
 \newpage
 \section{Tools and libraries}\label{libraries}
@@ -263,72 +302,37 @@ which is uniform. This distribution gave the best results.
 
 \section{Test and results}\label{analysis}
 In the following section we report the results obtained from the test conducted
-on our application. First we introduce our collection of datasets, then we
-describe the output data, we list our performance metrics and finally we discuss
-the results.
-\subsection{Dataset}\label{dataset}
-Table~\ref{tab:dataset} reports the datasets used to realize our project: the
-data were used both to train the model parameters and to test our algorithm. In
-this report we refer to them as \emph{Twitter}~(collection of tweets about apple
-and trump), \emph{Swift}~(collection of news, tweets and
-blogs text) and \emph{Hybrid}~(Tweet + Swift). In particular, the
-tweets in \emph{Twitter} are split in training tweets, used to train the
-transition matrix and test tweets, used to evaluate the performances.
+on our application. First we introduce our test dataset, then we
+describe the semantic of our output data, we list our performance metrics and
+finally we discuss the results.
+Notice that for what concerns the testing we divided the output data depending
+on whether the correction was launched having the whole tweet as input or single
+words in tweets as input. On the contrary, when evaluating the output data we
+only checked if every word of the output text was equals to every word in the ground truth,  types
+of correction(on whole tweets/on single words).
 
-All datasets were previously cleaned from all characters
-different from the alphabetical ones(lowercase and uppercase), plus whitespace.
-Moreover, urls and mentions were removed from each tweet in order to avoid
-noisy samples.
+\subsection{Data Analysis}\label{dataAnal}
 
-The samples used to train the model were previously corrupted with a $5\%$ error
-probability thanks to Autowrong. The errors simulate the wrong typing of a
-digit by replacing the intended digit with one of its neighbors.
 
-\begin{table}[htbp]
-  \centering
-  \setlength{\tabcolsep}{0.4em}
-  \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{lcr}
-    \toprule
-    \textbf{Name}  & \textbf{Source} & \textbf{\#characters} \\
-    \midrule
-    news  & Swift Key  & 204233394 \\
-    twitter & Swift Key  & 164456394 \\
-    blogs & Swift Key  & 207723793 \\
-    apple & Twitter & 2376252 \\
-    trump & Twitter & 11849767 \\
-    \bottomrule
-    $Swift$ & news, twitter, blogs & 576413581 \\
-    $Twitter$ & apple, trump & 14226019 \\
-    $Hybrid$ & Swift, Twitter & 590639600 \\
-    \bottomrule
-    \end{tabular}%
-    \caption{Dataset information}
-  \label{tab:dataset}%
-\end{table}%
+We partitioned the output data by assigning each word in the analyzed text three
+boolean attributes:
 
-\subsection{Data Analysis}
-
-We tested our application on the test sample of \emph{Twitter} dataset.
-We partitioned the output data by assigning each data three boolean
-attributes:
-
-\textit{1)} \emph{Perturbed}, which indicates whether the data was
+\textit{1)} \emph{Perturbed}, which indicates whether the word was
 perturbed by Autowrong or not; \textit{2)}
 \emph{Corrected}, set to $1$ if the model tried to correct it; \textit{3)}
-\emph{True}, set to $1$ if the output data matches the ground truth.
+\emph{True}, set to $1$ if the output word matches the ground truth.
 In Figure~\ref{confusionCircle} we reported the representation of how we divided the data.
-the circle contains all data which were corrected(\emph{Corrected} = $1$) by our
+the circle contains all word which were corrected(\emph{Corrected} = $1$) by our
 model.
 It is divided in:
 \begin{itemize} 
-	\item \textbf{corrected-right}: perturbed data which were corrected and match
+	\item \textbf{corrected-right}: perturbed word which were corrected and match
 	the ground truth;
-	\item \textbf{corrected-wrong}: data which were corrected badly whether they
+	\item \textbf{corrected-wrong}: word which were corrected badly whether they
 	were perturbed or not;
-	\item \textbf{not corrected-right}: data not corrected and match the
+	\item \textbf{not corrected-right}: word not corrected and match the
 	ground truth;
-	\item \textbf{not corrected-wrong}: missed correction of data.
+	\item \textbf{not corrected-wrong}: missed correction of word.
 \end{itemize}
 
 \begin{figure}[hbpt]
@@ -375,7 +379,7 @@ the confusion matrix in Table~\ref{tab:confusionM}. From this matrix we define:
 \begin{equation}Accuracy = \frac{111 + 001}{111 + 100 + 010 + 110 +
 001}\end{equation}
 
-\begin{equation}F-measure1 = \frac{precision * recall}{precision +
+\begin{equation}F1-measure = 2 * \frac{precision * recall}{precision +
 recall}\end{equation}
 
 
@@ -406,71 +410,210 @@ recall}\end{equation}
 
 %
 \subsection{Performance evaluation}
-The performances were valued on tweets from dataset \emph{Twitter}, in
-particular on the test sample. We ran the Viterbi algorithm with
-different input values and measured the performance variation. In particular, we experimented different configurations
+The performances were valued on tweets from dataset \emph{Apple} composed by
+5700 tweets containing 69 000 words talking about Apple Inc..
+\emph{Apple} dataset was previously corrupted with a $5\%$ error
+probability thanks to Autowrong, which leads to $25\%$ corrupted words.
+The errors simulate the wrong typing of a digit by replacing the intended digit with one of its neighbors.
+
+We ran the Viterbi algorithm with different input values and measured the performance variation. In particular, we experimented different configurations
 of Emission Matrix(EM) and Transition Matrix(TM). All experiments were conducted
 twice by running the algorithm on the text of the whole tweets first and on
 every single word of the tweets then. In the following section we will show the
 results in both cases.
-\newline
-\newline
-%%Emission matrix
-%%Gaussian
-As explained in Section~\ref{emissionM}, we generated three different types of
-matrix. The one distributed as a uniform didn't lead to interesting results. 
-For what concerns the gaussian distribution of emissions, we set $mean = 0$ and
-tested it with different variances to understand how the performances change. In
-Figure~\ref{}we resume the results obtained with different variance settings
-both for word analysis and tweet analysis.
 
-%Custom
-We made experiments also on our custom distribution of emissions, by varying the
-probability of pressing the intended digit. Figure~\ref{} shows how this
-probability affects the performances both for word analysis and tweet analysis.
+Our goal was to establish the best parameter configuration for the analysis and
+the model. 
+The considered parameters are: 
+\begin{itemize}
+  \item \emph{Analysis}: defined on \{tweets, words\}, indicates whether the
+  analysis was conducted by running the algorithm on the text of the whole
+  tweets or on every single word of the tweets;
+  \item \emph{Transition Matrix training(TM tr)}: defined on \{\emph{Twitter},
+  \emph{Swift},\emph{Hybrid}\}, indicates the dataset on which the transition
+  matrix was trained;
+  \item \emph{Emission Matrix distribution(EM distr)}: defined on \{uniform,
+  gaussian, custom\}, indicates the distribution of the values in the emission
+  matrix;
+  \item \emph{EM parameter}: defined on [0.05, 0.95] with a step of $0.05$,
+  in case of custom EM distr = custom indicates the probability of pressing the
+  intended digit; in case of gaussian EM distr = gaussian indicates the variance value.
+\end{itemize}
+The possible parameters combination are $2 * 3 * 2 * 19 + 2 * 3 = 234$. In order
+to find the best configuration, we first looked for the combination of
+``Analysis'', ``TM tr'' and ``EM  distr'' which gives the highest value of
+\emph{Accuracy}. For every parameter p, we fixed the remaining two and for every
+combination we verified which value of p maximizes the \emph{Accuracy}. In
+Table~\ref{tab:tab1}, \ref{tab:tab2} and \ref{tab:tab3}, the best parameter value is called ``Winner''.
 
-After our experiments we established that ..is the best. 
-
-Once assessed the best emission matrix, we focused our attention on the
-definition of the Transition Matrix. We trained it on three dataset,
-\emph{Twitter}, \emph{Swift} and the union of the two, \emph{Hybrid}.
-As shown in Table~\ref{}, we had the best result by training the matrix on
-\emph{Hybrid}.
-%frequency table
-% Table generated by Excel2LaTeX from sheet 'Foglio7'
-\begin{table}[htbp]
-  \centering
-    \begin{tabular}{rcrrrr}
+From these Tables we assessed that the best combination for the three parameter
+is \{$Analysis =$ tweets, $TM tr =$ Hybrid, $EM distr =$ custom\}.
+ % Table generated by Excel2LaTeX from sheet 'Sheet1'
+\begin{figure}
+\centering
+ \begin{minipage}{.45\textwidth}
+ \centering
+   \setlength{\tabcolsep}{0.5em}
+    \begin{tabular}{cc|c}
     \toprule
-    Dataset & Analysis & Precision & Recall & Accuracy & F-measure \\
+    \multicolumn{2}{c|}{Combination} &  \\
+    \textbf{Analysis} & \textbf{TM}    & \textbf{EM Winner} \\
     \midrule
-    \multicolumn{1}{c|}{\multirow{2}[0]{*}{Twitter}} & Tweet & 0     & 0     & 0
-    & 0 \\
-    \multicolumn{1}{c|}{} & Word  & 0     & 0     & 0     & 0 \\
-    \midrule
-    \multicolumn{1}{c|}{\multirow{2}[0]{*}{Swift}} & Tweet & 0     & 0     & 0  
-    & 0 \\
-    \multicolumn{1}{c|}{} & Word  & 0     & 0     & 0     & 0 \\
-    \midrule
-    \multicolumn{1}{c|}{\multirow{2}[0]{*}{Hybrid}} & Tweet & 0     & 0     & 0 
-    & 0 \\
-    \multicolumn{1}{c|}{} & Word  & 0     & 0     & 0     & 0 \\
+    tweet & Swift & Custom \\
+    tweet & Twitter & Custom \\
+    tweet & Hybrid & Custom \\
+    words & Swift & Custom \\
+    words & Twitter & Custom \\
+    words & Hybrid & Custom \\
     \bottomrule
     \end{tabular}%
-    \caption{Performance evaluation}
-  \label{tab:performance}%
+    \captionof{table}{EM best parameter versus Analysis and TM}%
+    \label{tab:tab1}%
+     
+
+  \setlength{\tabcolsep}{0.5em}
+        \begin{tabular}{cc|c}
+    \toprule
+    \multicolumn{2}{c|}{Combination} &  \\
+    \textbf{Analysis} & \textbf{EM}    & \textbf{TM Winner} \\
+    \midrule
+    tweets & Custom & Hybrid \\
+    words & Custom & Hybrid \\
+    tweets & Gaussian & Hybrid \\
+    words & Gaussian & Hybrid \\
+    tweets & Uniform & SwiftKey \\
+    words & Uniform & SwiftKey \\
+    \bottomrule
+        \end{tabular}%
+        \captionof{table}{TM best parameter versus Analysis and EM}%
+  \label{tab:tab2}%
+%\end{table}%
+\end{minipage}%
+\begin{minipage}{.45\textwidth}
+% Table generated by Excel2LaTeX from sheet 'Sheet1'
+%\begin{table}[htbp]
+  \centering
+%   \caption{Add caption}
+    \begin{tabular}{cc|c}
+    \toprule
+    \multicolumn{2}{c|}{Combination} &  \\
+    \textbf{EM} & \textbf{TM} & \textbf{Analysis Winner} \\
+    \midrule
+    Swift & Custom & tweets \\
+    Swift & Gaussian & tweets \\
+    Swift & Uniform & tweets \\
+    Hybrid & Custom & tweets \\
+    Hybrid & Gaussian & tweets \\
+    Hybrid & Uniform & tweets \\
+    Twitter & Custom & tweets \\
+    Twitter & Gaussian & tweets \\
+    Twitter & Uniform & tweets \\
+    \bottomrule
+    \end{tabular}%
+    \captionof{table}{Analysis best parameter versus EM and TM}
+  \label{tab:tab3}%
+%\end{table}%
+\end{minipage}%
+\end{figure}%
+%%Emission matrix
+
+
+For what concerns the gaussian/custom distribution of emissions, we tested them
+with different \emph{EM parameters} in order to understand
+how the performances change.
+% %Gaussian
+In Figure~\ref{gaussG} we resume the results obtained with
+different variance settings  word analysis and tweet analysis. The
+performance valued was the number of words in each output data set(see
+Section~\ref{dataAnal}).
+
+\begin{figure}[!htbp]
+\centering
+\subfloat[][Analysis: tweets - TM training set: Hybrid \label{gaussTweet}]
+{\includegraphics[width=1\textwidth]{tweets_hybrid_gaussian.png}} \hspace{35pt}
+\subfloat[][Analysis: words - TM training set: Hybrid \label{gaussWord}]
+{\includegraphics[width=1\textwidth]{words_hybrid_gaussian.png}} \\
+\caption{Gaussian distribution - variance influence on output data}
+\label{gaussG}
+\end{figure}
+
+%Custom
+Figure~\ref{customG} shows how the probability of pressing the intended digit
+affects the performance word analysis and tweet analysis. The
+performance valued was the number of words in each output data set(see
+Section~\ref{dataAnal}).
+
+\begin{figure}[!htbp]
+\centering
+\subfloat[][Analysis: tweets - TM training set: Hybrid \label{customTweet}]
+{\includegraphics[width=1\textwidth]{tweets_hybrid_custom.png}} \hspace{35pt}
+\subfloat[][Analysis: words - TM training set: Hybrid \label{customWord}]
+{\includegraphics[width=1\textwidth]{words_hybrid_custom.png}} \\
+\caption{Custom distribution - intended digit probability influence on
+output data}
+\label{customG}
+\end{figure}
+
+After our experiments we established that the best value for the parameter is
+$EM parameter =$ 0.35, in case of \emph{EM distr} = gaussian; $EM parameter =$
+0.95, in case of \emph{EM distr} = custom.
+
+In Table~\ref{tab:bestResults}, the best results obtained with the best
+parameters configuration.
+
+%frequency table
+% Table generated by Excel2LaTeX from sheet 'Foglio7'
+% Table generated by Excel2LaTeX from sheet 'Foglio10'
+\begin{table}[htbp]
+  \centering
+    \begin{tabular}{cccccccc}
+    \toprule
+    \textbf{Analysis} & \textbf{TM tr} & \textbf{EM distr} & \textbf{EM p} & \textbf{Prec} & \textbf{Rec} & \textbf{F1} & \textbf{Acc} \\
+    \midrule
+    tweets & Hybrid & custom & 0.95  & 0.2942 & 0.3547 & 0.3216 & 0.7784 \\
+    \bottomrule
+    \end{tabular}%
+  \caption{Best results on dataset apple}
 \end{table}%
+\label{tab:bestResults}%
 
-\subsection{Dictionary}
-In order to support and enhance our algorithm, we added a
-function which verifies word existence on a dictionary. After the correction of
-every word, this function checks whether the corrected word or the original one is included in
-the dictionary and returns the matching one, giving priority to the corrected
-word in case both are equally present/absent in the dictionary. The dictionary was taken
-from NLTK (see \url{www.nltk.org}).
-In Table~\ref{}, the results obtained with the dictionary support.
+The test presented was conducted without the support of our dictionary(see
+Section~\ref{dict}). After its introduction, we observed a linear increase of
+the performance metrics. Table~\ref{tab:final} shows a sample of the final
+results that we obtained from testing dataset \emph{Apple}.
 
-
+% Table generated by Excel2LaTeX from sheet 'Foglio8'
+\begin{table}[htbp]
+  \centering
+    \begin{tabular}{rlllllllll}
+    \toprule
+    \textbf{Rank} & \textbf{Analysis} & \textbf{Dict} & \textbf{TM tr} & \textbf{EM distr} & \textbf{EM p} & \textbf{Prec} & \textbf{Rec} & \textbf{F1} & \textbf{Acc} \\
+    \midrule
+    1     & tweets & NLTK  & Twitter & custom & 0.95  & 0.3364 & 0.3688 & 0.3519
+    & 0.8006 \\
+    2     & tweets & NLTK  & Swift & custom & 0.95  & 0.3303 & 0.3432 & 0.3366 &
+    0.7991 \\
+    5     & tweets & NLTK  & Twitter & gaussian & 0.35 & 0.2761 & 0.3107 &
+    0.2924 & 0.7900\\
+    19    & tweets & \multicolumn{1}{c}{-} & Hybrid & custom & 0.95  & 0.2942 &
+    0.3547 & 0.3216 & 0.7784 \\
+    23    & words & \multicolumn{1}{c}{-} & Hybrid & custom & 0.95  & 0.2799 &
+    0.3272 & 0.3017 & 0.7754 \\
+    24    & words & NLTK  & Twitter & gaussian & 0.35  & 0.2480 & 0.2981 &
+    0.2708 & 0.7754 \\
+    30    & words & NLTK  & Hybrid & gaussian & 0.3   & 0.2110 & 0.1684 & 0.1873
+    & 0.7736 \\
+    31    & tweets & \multicolumn{1}{c}{-} & Hybrid & gaussian & 0.3   & 0.2152
+    & 0.1769 & 0.1942 & 0.7734 \\
+    339   & tweets & NLTK  & Swift & uniform & \multicolumn{1}{c}{-} & 0.0326 &
+    0.6054 & 0.0619 & 0.4814 \\
+    632   & tweets & \multicolumn{1}{c}{-} & Swift & uniform &
+    \multicolumn{1}{c}{-} & 0.0227 & 0.9559 & 0.0444 & 0.1625 \\
+    \bottomrule
+    \end{tabular}%
+    \caption{Final results on Apple dataset}
+  \label{tab:final}%
+\end{table}%
 \section{HMMispelling demo}
 %insert screenshot
 As result of our project, we introduce our demo ``HMMispelling''. The demo
