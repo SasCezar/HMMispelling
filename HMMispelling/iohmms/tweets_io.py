@@ -5,6 +5,12 @@ import os.path as path
 
 
 def clean_tweets(in_file, out_file=None):
+    """
+    Removes unwanred chars/strings from tweets and save a file
+    :param in_file:
+    :param out_file:
+    :return:
+    """
     dict_tweets = load_tweets(in_file, True)
     if not out_file:
         base_path = path.dirname(in_file)
@@ -16,6 +22,12 @@ def clean_tweets(in_file, out_file=None):
 
 
 def load_tweets(file, not_cleaned=False):
+    """
+    Loads a tweet file
+    :param file:
+    :param not_cleaned:
+    :return:
+    """
     dict_tweets = {}
 
     with open(file, 'rt', encoding="utf8") as csv_file:
@@ -30,6 +42,12 @@ def load_tweets(file, not_cleaned=False):
 
 
 def write_tweets(file, tweets):
+    """
+    Writes a tweet dictionary to file
+    :param file:
+    :param tweets:
+    :return:
+    """
     with open(file, "wt", encoding="utf8", newline="") as out_file:
         writer = csv.writer(out_file, delimiter="\t")
         for tweet_id in tweets:
@@ -44,6 +62,11 @@ space_re = re.compile(r'\s+')
 
 
 def clean(tweet):
+    """
+    Removes all unwanted strings from a tweet
+    :param tweet:
+    :return:
+    """
     tweet = mentions_re.sub(' ', tweet)  # Mentions
     tweet = url_re.sub(' ', tweet)  # URLs
     tweet = symbols_re.sub(' ', tweet)  # Symbols

@@ -1,8 +1,10 @@
-import numpy as np
 import hidden_markov
 
 
 class MispellingHMM():
+    """
+    Wrapper around hiddenmarkov library
+    """
     def __init__(self, hidden_states, observables, start_probability, transition_matrix, emission_matrix):
         self.hidden_states = hidden_states
         self.observables = observables

@@ -2,15 +2,26 @@ import csv
 import numpy as np
 import math as mh
 import pandas
+from numpy.testing.decorators import deprecated
 
 
 def normalize_matrix(matrix):
+    """
+    Normalizes a matrix
+    :param matrix:
+    :return:
+    """
     result = np.matrix(np.apply_along_axis(normalize_list, 1, matrix))  # Set frequencies in 0:1 interval
     return result
 
 
 def load_dataframe(file, func=normalize_matrix):
-
+    """
+    Load a dataframe and apply a function
+    :param file:
+    :param func:
+    :return:
+    """
     dataframe = pandas.read_csv(file)
     dataframe = dataframe.drop(dataframe.columns[0], 1)
     matrix = np.matrix(dataframe.as_matrix())
@@ -22,7 +33,13 @@ def load_dataframe(file, func=normalize_matrix):
     return header, matrix
 
 
+@deprecated
 def load_probabilities(file):
+    """
+    Deprecated
+    :param file:
+    :return:
+    """
     i = 0
     probability = np.matrix([])
 
@@ -44,6 +61,11 @@ def load_probabilities(file):
 
 
 def normalize_distribution(matrix):
+    """
+    Normalize a distribution  matrix
+    :param matrix:
+    :return:
+    """
     r = matrix.shape[0]
     c = matrix.size
     result = np.matrix([])
@@ -70,6 +92,11 @@ def normalize_distribution(matrix):
 
 
 def normalize_list(v):
+    """
+    Normalize a row
+    :param v:
+    :return:
+    """
     norm = np.linalg.norm(v, ord=1)
     if norm == 0:
         norm = np.finfo(v.dtype).eps

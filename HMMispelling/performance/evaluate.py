@@ -6,6 +6,11 @@ from itertools import product
 
 
 def count_indexes(tweets_evals):
+    """
+    Evaluates indexes
+    :param tweets_evals:
+    :return:
+    """
     a = [0, 1]
     indexes = {}
     for element in list(product(a, a, a)):
@@ -20,19 +25,38 @@ def count_indexes(tweets_evals):
 
 
 def load_files(file_name, in_path):
+    """
+    loads all file in a folder containing file_name in its name
+    :param file_name:
+    :param in_path:
+    :return:
+    """
     files = [path.join(in_path, f) for f in listdir(in_path) if path.isfile(path.join(in_path, f)) if file_name in f]
     return files
 
 
-def get_top_n(dict, n):
+def get_top_n(words_analysis, n):
+    """
+    Returns the top n (original, perturbated, corrected) triples form words analysis dict
+    :param words_analysis:
+    :param n:
+    :return:
+    """
     sorted_words_reshape = {}
-    for correction_type in dict:
-        words_reshape = [(k, dict[correction_type][k]) for k in dict[correction_type]]
+    for correction_type in words_analysis:
+        words_reshape = [(k, words_analysis[correction_type][k]) for k in words_analysis[correction_type]]
         sorted_words_reshape[correction_type] = sorted(words_reshape, key=lambda x: -x[1])[:n]
     return sorted_words_reshape
 
 
 def evaluate(tweets_path, corrected_path, out_path):
+    """
+    Evaluates the metrics of our model
+    :param tweets_path:
+    :param corrected_path:
+    :param out_path:
+    :return:
+    """
     tweets_evals = {}
     words_evals = {}
 
@@ -72,7 +96,14 @@ def evaluate(tweets_path, corrected_path, out_path):
     return words_index
 
 
-def evaluate_type_of_errors(tweets_path, corrected_path, out_path, n=10):
+def evaluate_type_of_errors(tweets_path, corrected_path, n=10):
+    """
+    Find the most common triples that the models gets and dont get right
+    :param tweets_path:
+    :param corrected_path:
+    :param n:
+    :return:
+    """
     file_name, _ = path.splitext(path.basename(tweets_path))
 
     perturbed_tweets = tweetio.load_tweets(tweets_path + "_autowrong.txt")
@@ -106,6 +137,13 @@ def evaluate_type_of_errors(tweets_path, corrected_path, out_path, n=10):
 
 
 def check(corrected, perturbed, truth):
+    """
+    Returna  boolean tripe that says if the word was perturbed, corrected, and corrected right
+    :param corrected:
+    :param perturbed:
+    :param truth:
+    :return:
+    """
     return (is_perturbed(perturbed, truth), is_corrected(perturbed, corrected), is_truth(truth, corrected))
 
 
@@ -124,7 +162,7 @@ def is_truth(truth, corrected):
 if __name__ == "__main__":
     r = evaluate_type_of_errors("../../dataset/apple_tweets",
                                 "../../results/predictions/apple_tweets_autowrong_tweets_corrected_transition=Hybrid_PseudoUniform_key-prob=0.95.txt",
-                                "../../results/performance", 5)
+                                5)
     j = evaluate("../../dataset/10apple_tweets",
                  "../../dataset/10apple_tweets_autowrong.txt",
                  "../../results/")

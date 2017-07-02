@@ -364,6 +364,11 @@ epsilon = 10*10**-5
 
 
 def create_emission_matrix(errors_distributions):
+    """
+    Creates an emission matrix given the error distribution
+    :param errors_distributions:
+    :return:
+    """
     size = len(errors_distributions)
 
     emission_matrix = np.full((size, size), epsilon, dtype=float)
@@ -392,6 +397,12 @@ def create_emission_matrix(errors_distributions):
 
 
 def error_factory(model, param=None):
+    """
+    Creates an error model from a string
+    :param model:
+    :param param:
+    :return:
+    """
     if model == "Gaussian":
         error_model = KeyBoardGaussianError(param)
     if model == "Uniform":
