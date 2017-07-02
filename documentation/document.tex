@@ -616,13 +616,28 @@ results that we obtained from testing dataset \emph{Apple}.
 \end{table}%
 
 \subsection{Word prediction analysis}
-In this section we show some examples of how our model corrects frequent and
-infrequent words.
+In this section we show some examples of how our model corrects or nor frequent
+and infrequent words.
 
 The most frequent word is ``Apple''. This word is perturbed in different ways:
 some of them are corrected by our model, some remain corrupted. For instance,
-``Apole'', ``Apppe'' and ``Alple'' are all samples of uncorrected perturbation.
-They are sot
+``Apole'', ``Appoe'' and ``Alple'' are all samples of uncorrected perturbation.
+In this case, even if the probability of 'pl' Is higher that 'po' and 'pp', the
+sequence probability is higher for 'Appp' and 'Apol' than 'Appl', hence our
+model doesn't correct the words.
+On the other hand, the model succeds in the correction when the word is
+perturbed as ``Aople'', ``Apple" or ``Wpple'': in these cases the error is
+not exploting the model weaknesses.
+
+Another example of common wrongly corrected word is ``you'', perturbed as
+``yoh'' or  ``yoj''. Our model corrects it as ``yon'' because the emission
+probability of the 'n' and 'u' are equal, but the transition probability is
+higher for bigram 'o-n' than 'o-u'.
+
+The last example regards an uncommon word which is not corrected when perturbed.
+``Liveroooo'', perturbation of ``Liverpool'', is not corrected because the
+bigram 'oo' is a common one, and our system is unable to handle errors of triple
+or more letters repeated.
 
 \section{HMMispelling demo}
 %insert screenshot
