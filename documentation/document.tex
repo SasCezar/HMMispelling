@@ -92,7 +92,7 @@ results by comparing different configurations and inputs.
 We modeled the problem as an hidden markov model, where the hidden states are
 the characters of the text which should have been typed; the emissions are the
 actual typed characters.
-\subsection{Inference task: Viterbi}
+
 The chosen task to infer the correct typed text is “Most Likely Sequence”. The
 Hidden Markov Model library(see Section~\ref{libraries}, Hidden-Markov Model) used in our
 project implements the Viterbi algorithm.
@@ -127,9 +127,10 @@ characters(lowercase and uppercase, plus whitespace) of the $QWERTY$ keyboard,
 in the following sections we will refer to keyboard input as ``digit''.
 \subsection{Prior probability matrix}
 To obtain this matrix we computed for every digit the frequency of the bigram
-(whitespace, digit). This matrix and the transition matrix were trained on the
-same datasets.
+[whitespace, digit]. This matrix and the transition matrix were trained on the
+same datasets~(see Section~\ref{dataset}).
 \subsection{Transition matrix}\label{transitionM}
+
 %how we obtained it
 The transition matrix describes the probability of a digit to be followed by
 another digit in the input text. The values of this matrix are bigram
@@ -143,12 +144,11 @@ all digit placed at distance ``$1$ digit'' in every direction on the keyboard.
 For instance, digit ``$S$'' is at distance $1$ from digit ``$A$'' but it is at distance ``$2$'' from
 digit ``$F$''.
 
-Given the intention of press a digit on the keyboard and all the digits, the
-emission matrix describes the probability of a digit to be press given the will
-of press the intended digit~(``fat finger typo''). For each digit, this matrix
-contains relevant values when the probability refers to the neighbor digits of
-the intended digit. The other probabilities are set to constant $\epsilon =
-10^{-5}$.
+Given the intention to press a digit on the keyboard, the emission matrix
+describes the probability of any digit to be pressed instead of the intended
+digit~(``fat finger typo'').
+For each digit, this matrix contains relevant values when the probability refers to the neighbor digits. The other
+probabilities are set to constant $\epsilon = 10^{-5}$.
 
 We modeled the neighbors of every digit as a $3$x$3$ neighbor matrix
 where the intended digit is placed in position $[2, 2]$ (See
@@ -157,18 +157,18 @@ contains a $null$ value. Given a neighbor matrix, we compute a bidimensional
 distribution centered on the intended digit position.
 We tested three different kinds of distribution: uniform, gaussian and custom.
 For what concerns the uniform distribution, we assumed that every neighbor digit
-and the intended one have the same probability to be press. This
+and the intended one have the same probability to be pressed. This
 simplified configuration led to poor results, since there is no emphasis on the
-fact that the intended digit will be press correctly most of the time.
+fact that the intended digit will be pressed correctly most of the time.
 This problem was solved by introducing the gaussian distribution with $mean$
-equals to $0$(Figure~\ref{gaussianD}. We explored different settings for the
+equals to $0$~(Figure~\ref{gaussianD}). We explored different settings for the
 $variance$ in order to find the best configuration~(see Section \ref{analysis}). Even if the gaussian
 distribution seems to offer good values for the emission matrix, it should
 be used to model continous variables.
 
-Finally, we tested our custom distribution where the probability of press the
-intended digit is definitely higher than the probability of press its neighbors,
-which is uniform. This distribution gave the best results.
+Finally, we tested our custom distribution where the probability of pressing the
+intended digit is definitely higher than the probability of pressing its
+neighbors, which is uniform. This distribution gave the best results.
 
 % \begin{figure}%[hbp]
 % \centering
@@ -314,8 +314,8 @@ of correction(on whole tweets/on single words).
 \subsection{Data Analysis}\label{dataAnal}
 
 
-We partitioned the output data by assigning each word in the analyzed text three
-boolean attributes:
+We partitioned the output data by assigning to each word in the analyzed text
+three boolean attributes:
 
 \textit{1)} \emph{Perturbed}, which indicates whether the word was
 perturbed by Autowrong or not; \textit{2)}
@@ -430,7 +430,7 @@ The considered parameters are:
   analysis was conducted by running the algorithm on the text of the whole
   tweets or on every single word of the tweets;
   \item \emph{Transition Matrix training(TM tr)}: defined on \{\emph{Twitter},
-  \emph{Swift},\emph{Hybrid}\}, indicates the dataset on which the transition
+  \emph{Swift}, \emph{Hybrid}\}, indicates the dataset on which the transition
   matrix was trained;
   \item \emph{Emission Matrix distribution(EM distr)}: defined on \{uniform,
   gaussian, custom\}, indicates the distribution of the values in the emission
@@ -639,6 +639,11 @@ The pipeline of our application is divided in ..steps:
 \end{itemize}
 
 \section{Conclusions}
+In our project we developed an application able to correct keyboard typos thanks
+to the use of an Hidden Markov Model.  We trained the model parameters and
+tested the possible parameters combinations in order to find the best
+configuration for the model. Moreover, we added a dictionary to support the
+correction task. Finally we analyzed the results.
 
 % The atomic weight of magnesium is concluded to be \SI{24}{\gram\per\mol}, as determined by the stoichiometry of its chemical combination with oxygen. This result is in agreement with the accepted value.
 % 
