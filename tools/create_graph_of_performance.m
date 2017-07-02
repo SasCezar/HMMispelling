@@ -9,11 +9,11 @@ path_begin = 'C:\Users\sasce\PycharmProjects\HMMispelling\results\performance\';
 p_dataset = 'apple';
 p_tweets = '_tweets';
 p_autowrong = 'autowrong';
-p_vitebimode = 'words';
+p_vitebimode = 'tweets'; % Settare a tweets
 p_corrected = '_corrected_';
 p_transition = 'transition=';
 p_training = 'Hybrid';
-p_distribution = 'PseudoUniform';
+p_distribution = 'PseudoUniform'; % Settare  Gaussian
 p_keyprob = 'key-prob=';
 p_eval = 'word';
 p_evalstatic = '_evaluation_index.txt';
@@ -48,10 +48,16 @@ y4 = freq_table(4,:);
 y5 = freq_table(5,:);
 
 if(strcmp(p_training, 'Hybrid'))
-    p_trainingT = 'custom';
+    p_trainingT = 'Hybrid';
 end
+
+p_distribT = p_distribution;
+if(strcmp(p_distribution, 'PseudoUniform'))
+    p_distribT = 'Custom';
+end
+
 
 figure
 plot(x,y1,x,y2,x,y3,x,y4,x,y5,'LineWidth',3);
 legend('Perturbed - Corrected - Not true','Perturbed - Not corrected - Not true','Not perturbed - Corrected - Not true','Not perturbed - Not corrected - True','Perturbed - Corrected - True');
-title(['Dataset: ', p_dataset, ' - Viterbi mode: ', p_vitebimode, ' - Training set: ', p_trainingT, ' - Emission probability: ', p_distribution]);
+title(['Analyisis: ', p_vitebimode, ' - TM training set: ', p_trainingT, ' - EM distribution: ', p_distribT]);

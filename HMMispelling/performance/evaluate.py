@@ -72,8 +72,7 @@ def evaluate(tweets_path, corrected_path, out_path):
     return words_index
 
 
-def evaluate_type_of_errors(tweets_path, corrected_path, out_path):
-
+def evaluate_type_of_errors(tweets_path, corrected_path, out_path, n=10):
     file_name, _ = path.splitext(path.basename(tweets_path))
 
     perturbed_tweets = tweetio.load_tweets(tweets_path + "_autowrong.txt")
@@ -101,7 +100,7 @@ def evaluate_type_of_errors(tweets_path, corrected_path, out_path):
                 word_compare[correction_type][word_correction] = 0
             word_compare[correction_type][word_correction] += 1
 
-    top_corrected_words = get_top_n(word_compare, 10)
+    top_corrected_words = get_top_n(word_compare, n)
 
     return top_corrected_words
 
@@ -122,4 +121,13 @@ def is_truth(truth, corrected):
     return int(truth == corrected)
 
 
-# pprint.pprint(evaluate_type_of_errors("../../dataset/apple_tweets", "../../results/predictions/apple_tweets_autowrong_words_corrected_Gaussian_variance=0.25.txt", "../../results/performance"))
+if __name__ == "__main__":
+    r = evaluate_type_of_errors("../../dataset/apple_tweets",
+                                "../../results/predictions/apple_tweets_autowrong_tweets_corrected_transition=Hybrid_PseudoUniform_key-prob=0.95.txt",
+                                "../../results/performance", 5)
+    j = evaluate("../../dataset/10apple_tweets",
+                 "../../dataset/10apple_tweets_autowrong.txt",
+                 "../../results/")
+    for x in r:
+        for k in r[x]:
+            print(str(x) + "\t" + str(k[0]) + "\t" + str(k[1]))

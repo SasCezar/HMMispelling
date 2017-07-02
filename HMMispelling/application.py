@@ -1,8 +1,6 @@
 import argparse
 import csv
-import fnmatch
 import glob
-import os
 from os import path
 
 import logging
@@ -46,9 +44,6 @@ def __predict_tweets__(tweets, model):
 use_dict = True
 
 
-# words_dict = pickle.load(open(".//resources//dictionary_en_US.bin", "rb"))
-
-
 def __predict_words__(tweets, model):
     corrected_tweets = {}
     for tweet_id in tweets:
@@ -90,11 +85,6 @@ def predict(in_path, out_path, model, params):
 
 
 def load_files(filter, in_path):
-    # files = [path.join(in_path, f) for f in listdir(in_path) if path.isfile(path.join(in_path, f)) if file_name in f]
-    # return files
-
-    # files = [os.path.join(dirpath, f) for dirpath, dirnames, files in os.walk(in_path) for f in fnmatch.filter(files, filter)]
-
     files = glob.glob(r'{}**\*{}.txt'.format(in_path, filter), recursive=True)
     return files
 
@@ -158,7 +148,7 @@ def get_f1_score(precision, recall):
 
 def get_accuracy(scores):
     result = (scores[(1, 1, 1)] + scores[(0, 0, 1)]) / (
-    scores[(1, 1, 1)] + scores[(1, 0, 0)] + scores[(0, 1, 0)] + scores[(1, 1, 0)] + scores[(0, 0, 1)])
+        scores[(1, 1, 1)] + scores[(1, 0, 0)] + scores[(0, 1, 0)] + scores[(1, 1, 0)] + scores[(0, 0, 1)])
     return result
 
 

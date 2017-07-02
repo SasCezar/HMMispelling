@@ -18,6 +18,6 @@ class MispellingHMM():
         return self._model_.viterbi(sequence)
 
     def forward(self, sequence):
-        return self.forward(sequence)
+        return self._model_.forward_algo(sequence)
 
 
