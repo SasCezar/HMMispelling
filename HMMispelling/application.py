@@ -298,7 +298,7 @@ if __name__ == "__main__":
 
     single = subparser.add_parser("test")
     single.add_argument("-input", type=str, default="../../dataset/apple_tweets_autowrong.txt ")
-    single.add_argument("-out", type=str, default="../../dataset/results/predictions/")
+    single.add_argument("-out", type=str, default="../../results/")
     single.add_argument("-error_dist", type=str, default="Gaussian")
     single.add_argument("-dist_param", type=float, default=0.5)
 
