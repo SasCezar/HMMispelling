@@ -6,6 +6,7 @@ from os import path
 import logging
 
 from nltk.corpus import wordnet
+from numpy.testing.decorators import deprecated
 
 from HMMispelling.core import keyboard_errors, model
 from HMMispelling.iohmms import frequency_parser, tweets_io
@@ -14,6 +15,12 @@ from performance import evaluate
 
 
 def in_dict_corrected(orig, pred):
+    """
+    Corrects words using dictionary
+    :param orig:
+    :param pred:
+    :return:
+    """
     result = []
     for t, p in zip(orig.split(), pred.split()):
         if t != p and not wordnet.synsets(p.lower()):
@@ -29,6 +36,12 @@ def in_dict_corrected(orig, pred):
 
 
 def __predict_tweets__(tweets, model):
+    """
+    Predicts the most likely sequence using Viterbi algorithm on the whole tweet
+    :param tweets:
+    :param model:
+    :return:
+    """
     corrected_tweets = {}
     for tweet_id in tweets:
         corrected = model.viterbi(tweets[tweet_id])
@@ -45,6 +58,12 @@ use_dict = True
 
 
 def __predict_words__(tweets, model):
+    """
+    Predicts the most likely sequence using Viterbi algorithm on the tweet's words
+    :param tweets:
+    :param model:
+    :return:
+    """
     corrected_tweets = {}
     for tweet_id in tweets:
         corrected_tweet = []
@@ -65,6 +84,14 @@ def __predict_words__(tweets, model):
 
 
 def predict(in_path, out_path, model, params):
+    """
+    Runs the two types of predition on the input file
+    :param in_path:
+    :param out_path:
+    :param model:
+    :param params:
+    :return:
+    """
     file_name, _ = path.splitext(path.basename(in_path))
 
     tweets = tweets_io.load_tweets(in_path)
@@ -85,21 +112,39 @@ def predict(in_path, out_path, model, params):
 
 
 def load_files(filter, in_path):
+    """
+    Load all files in a folder and it's subfolder that matches the filter string
+    :param filter:
+    :param in_path:
+    :return:
+    """
     files = glob.glob(r'{}**\*{}.txt'.format(in_path, filter), recursive=True)
     return files
 
 
+@deprecated
 def perturbed_corrected_ratio(scores):
+    """
+    :param scores:
+    :return:
+    """
     result = scores[(1, 1, 1)] / (scores[(1, 1, 1)] + scores[(1, 1, 0)] + scores[(1, 0, 0)])
     return result
 
 
+@deprecated
 def not_perturbed_not_corrected_ratio(scores):
     result = scores[(0, 0, 1)] / (scores[(0, 0, 1)] + scores[(0, 1, 0)])
     return result
 
 
 def maxes2csv(results, out_path):
+    """
+    Writes the performance measures to csv
+    :param results:
+    :param out_path:
+    :return:
+    """
     with open(out_path, "wt", encoding="utf8", newline="") as outf:
         writer = csv.writer(outf, delimiter="\t")
 
@@ -110,6 +155,12 @@ def maxes2csv(results, out_path):
 
 
 def find_max(in_path, out_path):
+    """
+    Find the best cofiguration of the model from results files
+    :param in_path:
+    :param out_path:
+    :return:
+    """
     files = load_files("index", in_path)
 
     metrics = {}
@@ -164,6 +215,13 @@ word_dict_string = "dict=NLTKWordNet_" if use_dict else ""
 
 
 def bruteforce(tweets_path, corrected_path, out_path):
+    """
+    Bruteforce for finding the best parameter configuration
+    :param tweets_path:
+    :param corrected_path:
+    :param out_path:
+    :return:
+    """
     for trans_file in ["SwiftKey", "Hybrid", "Twitter"]:
         tweet_file_path = tweets_path + "_autowrong.txt"
         states, transition_prob = frequency_parser.load_dataframe(
@@ -212,9 +270,9 @@ def bruteforce(tweets_path, corrected_path, out_path):
 
 
 def main(args):
-    states, transition_prob = frequency_parser.load_dataframe("./resources/SwiftKey_en_US_letters_frequencies.txt")
 
     if args.subparser == "test":
+        states, transition_prob = frequency_parser.load_dataframe("./resources/SwiftKey_en_US_letters_frequencies.txt")
         error_model = error_factory(args.error_distr, args.dist_param)
         error = error_model.evaluate_error()
         possible_observation, emission_prob = keyboard_errors.create_emission_matrix(error)
