@@ -1,5 +1,5 @@
 # HMMispelling
-HMMispelling is a demo application (check webapp branch for the app) to correct input keyboard typos.  During the development of our project we made some studies on the problem: we defined an Hidden Markov Model, ran the Viterbi algorithm on it and analyzed the results by comparing different configurations and inputs.
+HMMispelling is a demo application (check webapp branch for the app) to correct input keyboard typos. During the development of our project we made some studies on the problem: we defined an Hidden Markov Model, ran the Viterbi algorithm on it and analyzed the results by comparing different configurations and inputs.
 
 ## Model
 We modeled the problem as an hidden markov model, where the hidden states are the characters of the text which should have been typed; the emissions are the actual typed characters. The chosen task to infer the correct typed text is Most Likely Sequence.
